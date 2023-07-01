@@ -11,4 +11,11 @@ export default defineConfig({
             formats: ['es'],
         },
     },
+    test: {
+        environment: 'happy-dom',
+        // browser: {
+        //     enabled: true,
+        //     name: 'chrome', // browser name is required
+        // },
+    },
 });

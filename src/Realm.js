@@ -1,3 +1,4 @@
+import { mutatePrototypes } from './DOM.js';
 import { NodeList as ShimNodeList } from './NodeList.js';
 
 /**
@@ -10,6 +11,7 @@ import { NodeList as ShimNodeList } from './NodeList.js';
 
 const REALM_SYMBOL = Symbol();
 const REALM_PARENT_SYMBOL = Symbol();
+let attacched = false;
 
 /**
  * Create and attach a realm for a node.
@@ -19,6 +21,11 @@ const REALM_PARENT_SYMBOL = Symbol();
 export function attachRealm(node) {
     if (REALM_SYMBOL in node) {
         throw new Error('Node already has a realm');
+    }
+
+    if (!attacched) {
+        mutatePrototypes();
+        attacched = true;
     }
 
     const realm = (node[REALM_SYMBOL] = new Realm(node));
