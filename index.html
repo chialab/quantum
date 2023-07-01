@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
+        <title>Quantum</title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script type="module">
+            import { html } from 'htm/preact';
+            import { render } from 'preact';
+            import { useRef, useEffect } from 'preact/hooks';
+            import { attachRealm } from './src/index.js';
+
+            const Slot = ({ slotted }) => {
+                const ref = useRef(null);
+                useEffect(() => {
+                    const parent = ref.current;
+                    const children = parent.childNodes;
+                    const length = slotted.length;
+
+                    let currentNode = children.item(0);
+                    for (let i = 0; i < length; i++) {
+                        const node = slotted[i];
+                        if (currentNode !== node) {
+                            parent.insertBefore(node, currentNode);
+                        } else {
+                            currentNode = children.item(i + 1);
+                        }
+                    }
+
+                    while (children.length > length) {
+                        parent.removeChild(parent.lastChild);
+                    }
+                });
+
+                return html`<div ref=${ref} />`;
+            };
+
+            const root = document.getElementById('app');
+            const realm = attachRealm(root);
+            realm.observe((fragment, slotted) => {
+                render(
+                    html`<strong>
+                        ${slotted.length ? html`<${Slot} slotted=${slotted} />` : 'Default content'}
+                    </strong>`,
+                    fragment
+                );
+            });
+
+            render('Hello World', root);
+            setTimeout(() => {
+                render('Hi there', root);
+                setTimeout(() => {
+                    render(null, root);
+                }, 2000);
+            }, 2000);
+        </script>
+    </body>
+</html>
