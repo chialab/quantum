@@ -17,6 +17,15 @@ const ShimNodeList = /** @type {{ new(array: Node[]): NodeList; prototype: NodeL
              */
             constructor(array) {
                 this._array = array;
+
+                return new Proxy(this, {
+                    get(target, key) {
+                        if (!isNaN(Number(key))) {
+                            return target.item(Number(key));
+                        }
+                        return Reflect.get(target, key);
+                    },
+                });
             }
 
             /**

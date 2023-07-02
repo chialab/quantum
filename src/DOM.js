@@ -81,7 +81,7 @@ export function mutatePrototypes() {
             if (!realm) {
                 return /** @type {ValueDescriptor} */ (replaceChild).value.call(this, node, child);
             }
-            return realm.replaceWith(node, child);
+            return realm.replaceWith(child, node);
         },
     });
 
