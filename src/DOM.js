@@ -122,7 +122,7 @@ export function mutatePrototypes() {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {GetterDescriptor} */ (hasChildNodes).get.call(this);
+                return /** @type {ValueDescriptor} */ (hasChildNodes).value.call(this);
             }
             return !!realm.childNodes.length;
         },
@@ -152,7 +152,7 @@ export function mutatePrototypes() {
             if (!realm) {
                 return /** @type {GetterDescriptor} */ (lastChild).get.call(this) ?? null;
             }
-            return realm.childNodes.item(/** @type {GetterDescriptor} */ (childNodes).get.length - 1) ?? null;
+            return realm.childNodes.item(realm.childNodes.length - 1) ?? null;
         },
         set: lastChild.set,
     });

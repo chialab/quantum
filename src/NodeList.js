@@ -20,7 +20,7 @@ const ShimNodeList = /** @type {{ new(array: Node[]): NodeList; prototype: NodeL
 
                 return new Proxy(this, {
                     get(target, key) {
-                        if (!isNaN(Number(key))) {
+                        if (typeof key === 'number' || (typeof key === 'string' && !isNaN(Number(key)))) {
                             return target.item(Number(key));
                         }
                         return Reflect.get(target, key);

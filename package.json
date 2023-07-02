@@ -8,11 +8,13 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest test --coverage",
+    "test:browser": "vitest test --browser chrome",
     "bench": "vitest bench"
   },
   "devDependencies": {
     "@chialab/eslint-config": "^4.0.3",
     "@chialab/prettier-config": "^1.2.0",
+    "@vitest/browser": "^0.32.2",
     "@vitest/coverage-v8": "^0.32.2",
     "eslint": "^8.44.0",
     "htm": "^3.1.1",
@@ -21,6 +23,7 @@
     "prettier": "^2.8.8",
     "typescript": "^5.0.2",
     "vite": "^4.3.9",
-    "vitest": "0.31.1"
+    "vitest": "0.31.1",
+    "webdriverio": "^8.11.2"
   }
 }
