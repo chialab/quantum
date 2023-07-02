@@ -12,10 +12,10 @@ export default defineConfig({
         },
     },
     test: {
-        environment: 'happy-dom',
-        // browser: {
-        //     enabled: true,
-        //     name: 'chrome', // browser name is required
-        // },
+        environment: 'jsdom',
+        coverage: {
+            provider: 'v8',
+            customProviderModule: '@vitest/coverage-v8',
+        },
     },
 });

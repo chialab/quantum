@@ -20,9 +20,9 @@ describe('prototype', () => {
 
     bench('quantum', () => {
         const container = document.createElement('div');
-        attachRealm(container);
-
         const items = Array.from({ length: 1000 }, (_, i) => i);
+
+        attachRealm(container);
         render(
             html`<ul>
                 ${items.map((item) => html`<li>${item}</li>`)}
