@@ -22,9 +22,12 @@
     "lit": "^2.7.5",
     "preact": "^10.15.1",
     "prettier": "^2.8.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "typescript": "^5.0.2",
     "vite": "^4.3.9",
     "vitest": "0.31.1",
+    "vue": "^3.3.4",
     "webdriverio": "^8.11.2"
   }
 }

@@ -6,6 +6,9 @@ export class CustomElement extends HTMLElement {
 
         this.realm = attachRealm(this);
         this.realm.observe(() => this.forceUpdate());
+    }
+
+    connectedCallback() {
         this.realm.requestUpdate(() => this.forceUpdate());
     }
 
@@ -35,28 +38,6 @@ export class CustomElement extends HTMLElement {
                 (node) => node instanceof HTMLElement && node.getAttribute('slot') === 'children'
             )
         );
-
-        let p = root.childNodes[2];
-        if (this.prop) {
-            if (!p || p.tagName !== 'P') {
-                p = this.ownerDocument.createElement('p');
-                root.insertBefore(p, root.childNodes[2]);
-            }
-            p.textContent = this.prop;
-        } else if (p && p.tagName === 'P') {
-            root.removeChild(p);
-        }
-
-        let pre = root.childNodes[3] || root.childNodes[2];
-        if (this.ref) {
-            if (!pre || pre.tagName !== 'PRE') {
-                pre = this.ownerDocument.createElement('pre');
-                root.appendChild(pre);
-            }
-            p.textContent = this.ref.title;
-        } else if (pre && pre.tagName === 'PRE') {
-            root.removeChild(pre);
-        }
     }
 }
 
