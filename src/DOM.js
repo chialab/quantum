@@ -494,7 +494,7 @@ defineProperty(ElementPrototype, 'previousElementSibling', {
             if (sibling.nodeType === 1) {
                 return sibling;
             }
-            sibling = parentRealm.getPreviousSibling(this);
+            sibling = parentRealm.getPreviousSibling(sibling);
         }
         return null;
     },
@@ -516,7 +516,7 @@ defineProperty(ElementPrototype, 'nextElementSibling', {
             if (sibling.nodeType === 1) {
                 return sibling;
             }
-            sibling = parentRealm.getNextSibling(this);
+            sibling = parentRealm.getNextSibling(sibling);
         }
         return null;
     },

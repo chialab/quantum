@@ -205,4 +205,146 @@ describe('realm', () => {
         expect(child.parentNode).toBe(container);
         expect(container.innerHTML).toBe('');
     });
+
+    test('Element.prototype.remove should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.remove();
+        expect(container.childNodes.length).toBe(0);
+        expect(child.parentNode).toBe(null);
+    });
+
+    test('Element.prototype.remove should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        attachRealm(container);
+        container.append(child);
+        child.remove();
+        expect(container.childNodes.length).toBe(0);
+        expect(child.parentNode).toBe(null);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Element.prototype.children|childElementCount|firstElementChild|lastElementChild|previousElementSibling|nextElementSibling should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        const child2 = document.createElement('div');
+        const child3 = document.createElement('div');
+        expect(container.childElementCount).toBe(0);
+        expect(container.firstElementChild).toBe(null);
+        expect(container.lastElementChild).toBe(null);
+        container.append(child, child2, 'string', child3, 'test');
+        expect(container.children.length).toBe(3);
+        expect(container.children[0]).toBe(child);
+        expect(container.children[1]).toBe(child2);
+        expect(container.children[2]).toBe(child3);
+        expect(container.childElementCount).toBe(3);
+        expect(container.firstElementChild).toBe(child);
+        expect(container.lastElementChild).toBe(child3);
+        expect(child.previousElementSibling).toBe(null);
+        expect(child2.previousElementSibling).toBe(child);
+        expect(child3.previousElementSibling).toBe(child2);
+        expect(child2.nextElementSibling).toBe(child3);
+        expect(child3.nextElementSibling).toBe(null);
+        expect(container.innerHTML).toBe('<div></div><div></div>string<div></div>test');
+    });
+
+    test('Element.prototype.children|childElementCount|firstElementChild|lastElementChild|previousElementSibling|nextElementSibling should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        const child2 = document.createElement('div');
+        const child3 = document.createElement('div');
+        attachRealm(container);
+        expect(container.childElementCount).toBe(0);
+        expect(container.firstElementChild).toBe(null);
+        expect(container.lastElementChild).toBe(null);
+        container.append(child, child2, 'string', child3, 'test');
+        expect(container.children.length).toBe(3);
+        expect(container.children[0]).toBe(child);
+        expect(container.children[1]).toBe(child2);
+        expect(container.children[2]).toBe(child3);
+        expect(container.childElementCount).toBe(3);
+        expect(container.firstElementChild).toBe(child);
+        expect(container.lastElementChild).toBe(child3);
+        expect(child.previousElementSibling).toBe(null);
+        expect(child2.previousElementSibling).toBe(child);
+        expect(child3.previousElementSibling).toBe(child2);
+        expect(child2.nextElementSibling).toBe(child3);
+        expect(child3.nextElementSibling).toBe(null);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Element.prototype.after should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.after('test');
+        expect(container.childNodes.length).toBe(2);
+        expect(container.lastChild.previousSibling).toBe(child);
+        child.after('test2');
+        expect(container.childNodes.length).toBe(3);
+        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+    });
+
+    test('Element.prototype.after should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        attachRealm(container);
+        container.append(child);
+        child.after('test');
+        expect(container.childNodes.length).toBe(2);
+        expect(container.lastChild.previousSibling).toBe(child);
+        child.after('test2');
+        expect(container.childNodes.length).toBe(3);
+        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Element.prototype.before should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.before('test');
+        expect(container.childNodes.length).toBe(2);
+        expect(container.firstChild.nextSibling).toBe(child);
+        child.before('test2');
+        expect(container.childNodes.length).toBe(3);
+        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+    });
+
+    test('Element.prototype.before should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        attachRealm(container);
+        container.append(child);
+        child.before('test');
+        expect(container.childNodes.length).toBe(2);
+        expect(container.firstChild.nextSibling).toBe(child);
+        child.after('test2');
+        expect(container.childNodes.length).toBe(3);
+        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Element.prototype.replaceWith should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.replaceWith('test');
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.textContent).toBe('test');
+        expect(child.parentNode).toBe(null);
+    });
+
+    test('Element.prototype.replaceWith should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        attachRealm(container);
+        container.append(child);
+        child.replaceWith('test');
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.textContent).toBe('test');
+        expect(child.parentNode).toBe(null);
+    });
 });

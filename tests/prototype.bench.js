@@ -3,10 +3,9 @@
 import { html } from 'htm/preact';
 import { render } from 'preact';
 import { bench, describe } from 'vitest';
-import { attachRealm } from '../src/index.js';
 
 describe('prototype', () => {
-    bench('native', () => {
+    bench('native', async () => {
         const container = document.createElement('div');
         const items = Array.from({ length: 1000 }, (_, i) => i);
         render(
@@ -18,7 +17,8 @@ describe('prototype', () => {
         render(html`<ul></ul>`, container);
     });
 
-    bench('quantum', () => {
+    bench('quantum', async () => {
+        const { attachRealm } = await import('../src/index.js');
         const container = document.createElement('div');
         const items = Array.from({ length: 1000 }, (_, i) => i);
 
