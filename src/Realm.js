@@ -1,4 +1,3 @@
-import './DOM.js';
 import { NodeList as ShimNodeList } from './NodeList.js';
 
 /**
