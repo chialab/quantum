@@ -21,10 +21,7 @@ export function attachRealm(node) {
         throw new Error('Node already has a realm');
     }
 
-    const realm = (node[REALM_SYMBOL] = new Realm(node));
-    realm.initialize();
-
-    return realm;
+    return (node[REALM_SYMBOL] = new Realm(node));
 }
 
 /**
@@ -116,13 +113,6 @@ export class Realm {
     _open = false;
 
     /**
-     * Whether the realm has been initialized.
-     * @type {boolean}
-     * @protected
-     */
-    _initialized = false;
-
-    /**
      * Setup the realm.
      * @param {HTMLElement} node The root node of the realm.
      */
@@ -131,6 +121,13 @@ export class Realm {
         this._document = node.ownerDocument || document;
         this._childNodes = [].slice.call(node.childNodes);
         this._childNodesList = new ShimNodeList(this._childNodes);
+
+        this._childNodes.forEach((node) => {
+            node.remove();
+            setParentRealm(node, this);
+        });
+
+        this._notifyUpdate();
 
         const store = new Map();
         const proto = Object.getPrototypeOf(node);
@@ -185,23 +182,6 @@ export class Realm {
      */
     get open() {
         return this._open;
-    }
-
-    /**
-     * Initialize the realm.
-     * Remove previously attached nodes and set the parent realm for the child nodes.
-     */
-    initialize() {
-        if (this._initialized) {
-            throw new Error('Realm already initialized');
-        }
-        this._childNodes.forEach((node) => {
-            node.remove();
-            setParentRealm(node, this);
-        });
-
-        this._notifyUpdate();
-        this._initialized = true;
     }
 
     /**
