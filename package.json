@@ -17,6 +17,8 @@
   "devDependencies": {
     "@chialab/eslint-config": "^4.0.3",
     "@chialab/prettier-config": "^1.2.0",
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@testing-library/svelte": "^4.0.3",
     "@vitest/browser": "^0.32.2",
     "@vitest/coverage-v8": "^0.32.2",
     "eslint": "^8.44.0",
@@ -27,6 +29,7 @@
     "prettier": "^2.8.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "svelte": "^4.0.2",
     "typescript": "^5.0.2",
     "vite": "^4.3.9",
     "vitepress": "^1.0.0-beta.5",

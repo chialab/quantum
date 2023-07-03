@@ -1,4 +1,4 @@
-import { attachRealm, reconcile } from '../src/index.js';
+import { attachRealm, reconcile } from '../../src/index.js';
 
 export class CustomElement extends HTMLElement {
     constructor() {

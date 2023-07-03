@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Quantum DOM"
+  name: "Quantum"
   text: ""
   tagline: "A light DOM implementation of the <slot> element to be used across frameworks."
   image:

@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    title: 'Quantum DOM',
+    title: 'Quantum',
     description: 'A light DOM implementation of the `<slot>` element to be used across frameworks.',
     themeConfig: {
         logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',

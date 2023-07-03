@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { test, describe, expect } from 'vitest';
-import './CustomElement.js';
+import './components/CustomElement.js';
 
-describe('Lit', () => {
+describe('React', () => {
     test('should update text content', async () => {
         const Template = (text) => React.createElement('custom-element', null, [text]);
         const container = document.createElement('div');

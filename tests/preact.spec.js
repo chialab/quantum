@@ -1,6 +1,6 @@
 import { h, render } from 'preact';
 import { test, describe, expect } from 'vitest';
-import './CustomElement.js';
+import './components/CustomElement.js';
 
 describe('Lit', () => {
     test('should update text content', () => {

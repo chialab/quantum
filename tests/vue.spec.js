@@ -1,8 +1,8 @@
 import { test, describe, expect } from 'vitest';
 import * as Vue from 'vue';
-import './CustomElement.js';
+import './components/CustomElement.js';
 
-describe('Lit', () => {
+describe('Vue', () => {
     test('should update text content', async () => {
         const container = document.createElement('div');
         const app = Vue.createApp({

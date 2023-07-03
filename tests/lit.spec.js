@@ -1,8 +1,8 @@
 import { html, render } from 'lit';
 import { test, describe, expect } from 'vitest';
-import './CustomElement.js';
+import './components/CustomElement.js';
 
-describe('Lit', () => {
+describe('Preact', () => {
     test('should update text content', () => {
         const Template = (text) => html`<custom-element>${text}</custom-element>`;
         const container = document.createElement('div');
