@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "test": "vitest test --coverage",
     "test:browser": "vitest test --browser chrome",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@chialab/eslint-config": "^4.0.3",
@@ -26,6 +29,7 @@
     "react-dom": "^18.2.0",
     "typescript": "^5.0.2",
     "vite": "^4.3.9",
+    "vitepress": "^1.0.0-beta.5",
     "vitest": "0.31.1",
     "vue": "^3.3.4",
     "webdriverio": "^8.11.2"
