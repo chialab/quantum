@@ -1,8 +1,8 @@
-import { mutatePrototypes } from './DOM.js';
+import './DOM.js';
 import { NodeList as ShimNodeList } from './NodeList.js';
 
 /**
- * @typedef {(root: HTMLElement, slotted: ChildNode[], mutations: MutationRecord[]) => void} RealmChangeCallback
+ * @typedef {(mutations: MutationRecord[]) => void} RealmChangeCallback
  */
 
 /**
@@ -11,7 +11,6 @@ import { NodeList as ShimNodeList } from './NodeList.js';
 
 const REALM_SYMBOL = Symbol();
 const REALM_PARENT_SYMBOL = Symbol();
-let attacched = false;
 
 /**
  * Create and attach a realm for a node.
@@ -21,11 +20,6 @@ let attacched = false;
 export function attachRealm(node) {
     if (REALM_SYMBOL in node) {
         throw new Error('Node already has a realm');
-    }
-
-    if (!attacched) {
-        mutatePrototypes();
-        attacched = true;
     }
 
     const realm = (node[REALM_SYMBOL] = new Realm(node));
@@ -167,10 +161,17 @@ export class Realm {
     }
 
     /**
-     * The root node of the realm.
+     * The host node of the realm.
      */
     get node() {
         return this._node;
+    }
+
+    /**
+     * The root node of the realm.
+     */
+    get root() {
+        return this._proxy;
     }
 
     /**
@@ -200,7 +201,7 @@ export class Realm {
             setParentRealm(node, this);
         });
 
-        this.notifyUpdate();
+        this._notifyUpdate();
         this._initialized = true;
     }
 
@@ -221,15 +222,26 @@ export class Realm {
     }
 
     /**
+     * Request an update of the realm.
+     * @param {Function} callback The callback to invoke.
+     */
+    requestUpdate(callback) {
+        this._open = true;
+        try {
+            callback();
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(err);
+        }
+        this._open = false;
+    }
+
+    /**
      * Notifiy a realm update
      * @param {MutationRecord[]} mutations The list of mutations that triggered the update.
      */
-    notifyUpdate(mutations = []) {
-        this._open = true;
-        this._callbacks.forEach((callback) => {
-            callback(this._proxy, this._childNodes, mutations);
-        });
-        this._open = false;
+    _notifyUpdate(mutations = []) {
+        this.requestUpdate(() => this._callbacks.forEach((callback) => callback(mutations)));
     }
 
     /**
@@ -265,22 +277,38 @@ export class Realm {
     }
 
     /**
+     * Normalize nodes list.
+     * @param {(Node | string)[]} nodes The nodes to normalize.
+     * @param {ChildNode[]} [acc] The accumulator.
+     * @returns The normalized nodes.
+     */
+    _importNodes(nodes, acc = []) {
+        return nodes.reduce((acc, node) => {
+            if (typeof node === 'string') {
+                node = this._document.createTextNode(node);
+                setParentRealm(node, this);
+                acc.push(/** @type {ChildNode} */ (node));
+            } else if (node.nodeType === 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
+                this._importNodes(Array.from(node.childNodes), acc);
+            } else {
+                setParentRealm(node, this);
+                acc.push(/** @type {ChildNode} */ (node));
+            }
+            return acc;
+        }, acc);
+    }
+
+    /**
      * Internal method to append nodes to the realm.
      * @protected
-     * @param {(ChildNode | string)[]} nodes The nodes to append.
+     * @param {(Node | string)[]} nodes The nodes to append.
      * @returns The nodes that were appended.
      */
     _append(nodes) {
-        const changed = nodes.map((child) => {
-            if (typeof child === 'string') {
-                child = document.createTextNode(child);
-            }
-
+        const changed = this._importNodes(nodes).map((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
-            } else if (!child.parentNode) {
-                setParentRealm(child, this);
             }
 
             return child;
@@ -293,20 +321,14 @@ export class Realm {
     /**
      * Internal method to prepend nodes to the realm.
      * @protected
-     * @param {(ChildNode | string)[]} nodes The nodes to prepend.
+     * @param {(Node | string)[]} nodes The nodes to prepend.
      * @returns The nodes that were prepended.
      */
     _prepend(nodes) {
-        const changed = nodes.map((child) => {
-            if (typeof child === 'string') {
-                child = this._document.createTextNode(child);
-            }
-
+        const changed = this._importNodes(nodes).map((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
-            } else if (!child.parentNode) {
-                setParentRealm(child, this);
             }
 
             return child;
@@ -342,7 +364,7 @@ export class Realm {
      * Internal method to insert nodes to the realm.
      * @protected
      * @param {ChildNode} node The node before which new nodes are to be inserted.
-     * @param {(ChildNode | string)[]} nodes The nodes to insert.
+     * @param {(Node | string)[]} nodes The nodes to insert.
      * @returns The nodes that were inserted.
      */
     _insert(node, nodes) {
@@ -353,16 +375,10 @@ export class Realm {
             );
         }
 
-        const changed = nodes.map((child) => {
-            if (typeof child === 'string') {
-                child = this._document.createTextNode(child);
-            }
-
+        const changed = this._importNodes(nodes).map((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
-            } else if (!child.parentNode) {
-                setParentRealm(child, this);
             }
 
             return child;
@@ -382,7 +398,7 @@ export class Realm {
      */
     append(...nodes) {
         const changed = this._append(nodes);
-        this.notifyUpdate([
+        this._notifyUpdate([
             {
                 addedNodes: changed,
                 removedNodes: [],
@@ -394,11 +410,11 @@ export class Realm {
 
     /**
      * Prepend nodes to the realm.
-     * @param {(ChildNode | string)[]} nodes The nodes to prepend.
+     * @param {(Node | string)[]} nodes The nodes to prepend.
      */
     prepend(...nodes) {
         const changed = this._prepend(nodes);
-        this.notifyUpdate([
+        this._notifyUpdate([
             {
                 addedNodes: changed,
                 removedNodes: [],
@@ -410,13 +426,13 @@ export class Realm {
 
     /**
      * Remove nodes from the realm.
-     * @param  {ChildNode[]} nodes The nodes to remove.
+     * @param {ChildNode[]} nodes The nodes to remove.
      */
     remove(...nodes) {
         const previousSibling = this.getPreviousSibling(nodes[0]);
         const nextSibling = this.getNextSibling(nodes[nodes.length - 1]);
         this._remove(nodes);
-        this.notifyUpdate([
+        this._notifyUpdate([
             {
                 addedNodes: [],
                 removedNodes: nodes,
@@ -429,7 +445,7 @@ export class Realm {
     /**
      * Replaces a realm node with nodes, while replacing strings in nodes with equivalent Text nodes.
      * @param {ChildNode} node The node to replace.
-     * @param  {(ChildNode | string)[]} nodes The nodes or strings to replace node with. Strings are replaced with equivalent Text nodes.
+     * @param {(Node | string)[]} nodes The nodes or strings to replace node with. Strings are replaced with equivalent Text nodes.
      */
     replaceWith(node, ...nodes) {
         const previousSibling = this.getPreviousSibling(node);
@@ -441,7 +457,7 @@ export class Realm {
         } else {
             appended = this._append(nodes);
         }
-        this.notifyUpdate([
+        this._notifyUpdate([
             {
                 addedNodes: appended,
                 removedNodes: removed,
@@ -454,12 +470,12 @@ export class Realm {
     /**
      * Inserts nodes or contents in the realm before node.
      * @param {ChildNode | null} node The node before which new nodes are to be inserted.
-     * @param  {(ChildNode | string)[]} nodes The nodes to be inserted.
+     * @param {(Node | string)[]} nodes The nodes to be inserted.
      */
     insertBefore(node, ...nodes) {
         const previousSibling = this.getPreviousSibling(node);
         const appended = node ? this._insert(node, nodes) : this._append(nodes);
-        this.notifyUpdate([
+        this._notifyUpdate([
             {
                 addedNodes: appended,
                 removedNodes: [],
