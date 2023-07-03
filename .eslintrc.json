@@ -1,9 +1,6 @@
 {
-
-    "extends": [
-        "@chialab/eslint-config"
-    ],
-    "env": {
-      "browser": true
-    }
+  "extends": ["@chialab/eslint-config"],
+  "env": {
+    "browser": true
+  }
 }
