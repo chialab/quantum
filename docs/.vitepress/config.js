@@ -15,19 +15,33 @@ export default defineConfig({
             },
             {
                 text: 'Guide',
-                link: '/guide',
+                link: '/guide/get-started',
             },
         ],
 
-        // sidebar: [
-        //     {
-        //         text: 'Examples',
-        //         items: [
-        //             { text: 'Markdown Examples', link: '/markdown-examples' },
-        //             { text: 'Runtime API Examples', link: '/api-examples' },
-        //         ],
-        //     },
-        // ],
+        sidebar: [
+            {
+                text: 'Guide',
+                items: [
+                    { text: 'Why Quantum', link: '/guide/why-quantum' },
+                    { text: 'Get started', link: '/guide/get-started' },
+                    { text: 'Features', link: '/guide/features' },
+                    { text: 'Usage', link: '/guide/usage' },
+                    { text: 'Web Components', link: '/guide/web-components' },
+                ],
+            },
+            {
+                text: 'Frameworks',
+                items: [
+                    { text: 'Overview', link: '/guide/frameworks' },
+                    { text: 'Lit', link: '/guide/frameworks/lit' },
+                    { text: 'Peact', link: '/guide/frameworks/preact' },
+                    { text: 'React', link: '/guide/frameworks/react' },
+                    { text: 'Svelte', link: '/guide/frameworks/svelte' },
+                    { text: 'Vue', link: '/guide/frameworks/vue' },
+                ],
+            },
+        ],
 
         socialLinks: [
             {
