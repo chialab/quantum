@@ -12,13 +12,22 @@ Custom elements composition made easy.
 ### Setup the project
 
 Install the dependencies
+
 ```
 yarn install
 ```
 
+### Dev mode
+
+Run the `dev` script to run the vite dev server:
+
+```
+yarn dev
+```
+
 ### Test the project
 
-Run the `test` script:
+Run the `test` script to run vitest:
 
 ```
 yarn test
