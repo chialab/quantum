@@ -16,7 +16,7 @@ describe('Lit', () => {
         expect(element.childNodes[1].parentNode).toBe(element);
         expect(element.childNodes[1].textContent).toBe('Text');
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$')).toBe(
-            '<!----><custom-element><span><!--?lit$-->Text</span><div></div></custom-element>'
+            '<!----><custom-element><span><!--?lit$-->Text<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
 
         render(Template('Update'), container);
@@ -25,7 +25,7 @@ describe('Lit', () => {
         expect(element.childNodes.length).toBe(2);
         expect(element.childNodes[1].textContent).toBe('Update');
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$')).toBe(
-            '<!----><custom-element><span><!--?lit$-->Update</span><div></div></custom-element>'
+            '<!----><custom-element><span><!--?lit$-->Update<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
     });
 
@@ -42,7 +42,7 @@ describe('Lit', () => {
         expect(element.childNodes[1].parentNode).toBe(element);
         expect(element.childNodes[1].textContent).toBe('Text');
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$')).toBe(
-            '<!----><custom-element><span><!--?lit$-->Text <!--?lit$-->children</span><div></div></custom-element>'
+            '<!----><custom-element><span><!--?lit$-->Text <!--?lit$-->children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
 
         render(Template('Update'), container);
@@ -51,7 +51,7 @@ describe('Lit', () => {
         expect(element.childNodes.length).toBe(5);
         expect(element.childNodes[1].textContent).toBe('Update');
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$')).toBe(
-            '<!----><custom-element><span><!--?lit$-->Update <!--?lit$-->children</span><div></div></custom-element>'
+            '<!----><custom-element><span><!--?lit$-->Update <!--?lit$-->children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
     });
 
@@ -68,7 +68,7 @@ describe('Lit', () => {
 
         expect(element.childNodes.length).toBe(4);
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$').replace(/\n\s+/g, '')).toBe(
-            '<!----><custom-element><span>Text <!--?lit$--></span><div><h1 slot="children">Title</h1></div></custom-element>'
+            '<!----><custom-element><span>Text <!--?lit$--><!--isµ0--></span><div><h1 slot="children">Title</h1><!--isµ1--></div></custom-element>'
         );
 
         render(Template(false), container);
@@ -76,7 +76,7 @@ describe('Lit', () => {
         expect(element.childNodes[0]).toBe(textNode);
         expect(element.childNodes[3]).toBe(lastNode);
         expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$').replace(/\n\s+/g, '')).toBe(
-            '<!----><custom-element><span>Text <!--?lit$--></span><div><h2 slot="children">Subtitle</h2></div></custom-element>'
+            '<!----><custom-element><span>Text <!--?lit$--><!--isµ0--></span><div><h2 slot="children">Subtitle</h2><!--isµ1--></div></custom-element>'
         );
     });
 });

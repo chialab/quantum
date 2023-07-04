@@ -20,7 +20,9 @@ describe('React', () => {
         expect(element.parentNode).toBe(container);
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
-        expect(container.innerHTML).toBe('<custom-element><span>Text</span><div></div></custom-element>');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Text<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
 
         root.render(Template('Update'));
         await new Promise((resolve) => setTimeout(resolve, 1));
@@ -29,7 +31,9 @@ describe('React', () => {
         expect(container.children[0]).toBe(element);
         expect(element.childNodes.length).toBe(1);
         expect(textNode.textContent).toBe('Update');
-        expect(container.innerHTML).toBe('<custom-element><span>Update</span><div></div></custom-element>');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Update<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
     });
 
     test('should update text content with multiple text nodes', async () => {
@@ -48,7 +52,9 @@ describe('React', () => {
         expect(element.childNodes.length).toBe(3);
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
-        expect(container.innerHTML).toBe('<custom-element><span>Text children</span><div></div></custom-element>');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Text children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
 
         root.render(Template('Update'));
         await new Promise((resolve) => setTimeout(resolve, 1));
@@ -57,7 +63,9 @@ describe('React', () => {
         expect(container.children[0]).toBe(element);
         expect(element.childNodes.length).toBe(3);
         expect(textNode.textContent).toBe('Update');
-        expect(container.innerHTML).toBe('<custom-element><span>Update children</span><div></div></custom-element>');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Update children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
     });
 
     test('should update named slots', async () => {
@@ -81,7 +89,7 @@ describe('React', () => {
 
         expect(element.childNodes.length).toBe(3);
         expect(container.innerHTML).toBe(
-            '<custom-element><span>Text \n</span><div><h1 slot="children">Title</h1></div></custom-element>'
+            '<custom-element><span>Text \n<!--isµ0--></span><div><h1 slot="children">Title</h1><!--isµ1--></div></custom-element>'
         );
 
         root.render(Template(false));
@@ -91,7 +99,7 @@ describe('React', () => {
         expect(element.childNodes[0]).toBe(textNode);
         expect(element.childNodes[2]).toBe(lastNode);
         expect(container.innerHTML).toBe(
-            '<custom-element><span>Text \n</span><div><h2 slot="children">Subtitle</h2></div></custom-element>'
+            '<custom-element><span>Text \n<!--isµ0--></span><div><h2 slot="children">Subtitle</h2><!--isµ1--></div></custom-element>'
         );
     });
 });

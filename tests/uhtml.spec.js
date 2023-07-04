@@ -18,7 +18,10 @@ describe('uhtml', () => {
         expect(element.parentNode).toBe(container);
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
-        expect(container.innerHTML).toBe('<custom-element><span>Text<!--isµ0--></span><div></div></custom-element>');
+        console.log(textNode.textContent);
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Text<!--isµ0--><!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
 
         render(container, Template('Update'));
 
@@ -26,7 +29,9 @@ describe('uhtml', () => {
         expect(container.children[0]).toBe(element);
         expect(element.childNodes.length).toBe(2);
         expect(textNode.textContent).toBe('Update');
-        expect(container.innerHTML).toBe('<custom-element><span>Update<!--isµ0--></span><div></div></custom-element>');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Update<!--isµ0--><!--isµ0--></span><div><!--isµ1--></div></custom-element>'
+        );
     });
 
     test('should update text content with multiple text nodes', () => {
@@ -45,7 +50,7 @@ describe('uhtml', () => {
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
         expect(container.innerHTML.replace(/\n\s+/g, '')).toBe(
-            '<custom-element><span>Text<!--isµ0--> children</span><div></div></custom-element>'
+            '<custom-element><span>Text<!--isµ0--> children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
 
         render(container, Template('Update'));
@@ -55,7 +60,7 @@ describe('uhtml', () => {
         expect(element.childNodes.length).toBe(3);
         expect(textNode.textContent).toBe('Update');
         expect(container.innerHTML).toBe(
-            '<custom-element><span>Update<!--isµ0--> children</span><div></div></custom-element>'
+            '<custom-element><span>Update<!--isµ0--> children<!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );
     });
 
@@ -75,7 +80,7 @@ describe('uhtml', () => {
 
         expect(element.childNodes.length).toBe(4);
         expect(container.innerHTML.replace(/\n\s+/g, '')).toBe(
-            '<custom-element><span>Text <!--isµ0--></span><div><h1 slot="children">Title</h1></div></custom-element>'
+            '<custom-element><span>Text <!--isµ0--><!--isµ0--></span><div><h1 slot="children">Title</h1><!--isµ1--></div></custom-element>'
         );
 
         render(container, Template(false));
@@ -84,7 +89,7 @@ describe('uhtml', () => {
         expect(element.childNodes[0]).toBe(textNode);
         expect(element.childNodes[2]).toBe(lastNode);
         expect(container.innerHTML.replace(/\n\s+/g, '')).toBe(
-            '<custom-element><span>Text <!--isµ0--></span><div><h2 slot="children">Subtitle</h2></div></custom-element>'
+            '<custom-element><span>Text <!--isµ0--><!--isµ0--></span><div><h2 slot="children">Subtitle</h2><!--isµ1--></div></custom-element>'
         );
     });
 });

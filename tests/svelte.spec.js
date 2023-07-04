@@ -24,7 +24,9 @@ describe('Svelte', () => {
         expect(element.parentNode).toBe(container);
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
-        expect(container.innerHTML).toBe('<custom-element><span>Text</span><div></div></custom-element><!--<Test1>-->');
+        expect(container.innerHTML).toBe(
+            '<custom-element><span>Text<!--isµ0--></span><div><!--isµ1--></div></custom-element><!--<Test1>-->'
+        );
 
         await component.$set({ text: 'Update' });
 
@@ -33,7 +35,7 @@ describe('Svelte', () => {
         expect(element.childNodes.length).toBe(1);
         expect(textNode.textContent).toBe('Update');
         expect(container.innerHTML).toBe(
-            '<custom-element><span>Update</span><div></div></custom-element><!--<Test1>-->'
+            '<custom-element><span>Update<!--isµ0--></span><div><!--isµ1--></div></custom-element><!--<Test1>-->'
         );
     });
 
@@ -55,7 +57,7 @@ describe('Svelte', () => {
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
         expect(container.innerHTML).toBe(
-            '<custom-element><span>Text children</span><div></div></custom-element><!--<Test2>-->'
+            '<custom-element><span>Text children<!--isµ0--></span><div><!--isµ1--></div></custom-element><!--<Test2>-->'
         );
 
         await component.$set({ text: 'Update' });
@@ -65,7 +67,7 @@ describe('Svelte', () => {
         expect(element.childNodes.length).toBe(3);
         expect(textNode.textContent).toBe('Update');
         expect(container.innerHTML.replace(/\n\s+/g, ' ')).toBe(
-            '<custom-element><span>Update children</span><div></div></custom-element><!--<Test2>-->'
+            '<custom-element><span>Update children<!--isµ0--></span><div><!--isµ1--></div></custom-element><!--<Test2>-->'
         );
     });
 
@@ -83,7 +85,7 @@ describe('Svelte', () => {
 
         expect(element.childNodes.length).toBe(3);
         expect(container.innerHTML.replace(/\n\s+/g, ' ')).toBe(
-            '<custom-element><span>Text end</span><div><h1 slot="children">Title</h1></div></custom-element><!--<Test3>-->'
+            '<custom-element><span>Text end<!--isµ0--></span><div><h1 slot="children">Title</h1><!--isµ1--></div></custom-element><!--<Test3>-->'
         );
 
         await component.$set({ title: false });
@@ -92,7 +94,7 @@ describe('Svelte', () => {
         expect(element.childNodes[0]).toBe(textNode);
         expect(element.childNodes[2]).toBe(lastNode);
         expect(container.innerHTML.replace(/\n\s+/g, ' ')).toBe(
-            '<custom-element><span>Text end</span><div><h2 slot="children">Subitle</h2></div></custom-element><!--<Test3>-->'
+            '<custom-element><span>Text end<!--isµ0--></span><div><h2 slot="children">Subitle</h2><!--isµ1--></div></custom-element><!--<Test3>-->'
         );
     });
 });
