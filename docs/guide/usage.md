@@ -3,7 +3,7 @@
 Once installed, you can import the library as ES module:
 
 ```js
-import { useRealm } from '@chialab/quantum';
+import { attachRealm } from '@chialab/quantum';
 ```
 
 :::warning
@@ -12,14 +12,18 @@ Quantum mutates `Node` and `HTMLElement` prototype methods at import time. Gener
 
 ## Create a Realm
 
-A realm is a DOM context that can be used to create and manage DOM nodes. A realm is created using the `useRealm` function:
+A realm is a DOM context that can be used to create and manage DOM nodes. A realm is created using the `attachRealm` function:
 
 ```js
-import { useRealm } from '@chialab/quantum';
+import { attachRealm } from '@chialab/quantum';
 
 const root = document.createElement('div');
-const realm = useRealm(root);
+const realm = attachRealm(root);
 ```
+
+:::info
+During realm creation, root's child nodes are removed from the DOM and appendend to the realm.
+:::
 
 A realm can be observed for mutations using the `observe` method:
 
@@ -36,12 +40,12 @@ At this time, you can use a generic view library to render the internal template
 
 ```js
 import { render, html } from 'uhtml';
-import { useRealm } from '@chialab/quantum';
+import { attachRealm } from '@chialab/quantum';
 
 const root = document.createElement('div');
-const realm = useRealm(root);
+const realm = attachRealm(root);
 
-realm.observe((mutations) => {
+realm.observe(() => {
     // render internal template
     render(realm.root, html`<ul>
         ${realm.childNodes}
