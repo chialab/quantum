@@ -68,6 +68,22 @@ render(root, html`
 The `realm.root` property is a Proxy of the original root node. Properties set during the observe cycle are not applied to the original node, so you can invoke the `render` function without any side effect and context mixing.
 :::
 
+## Named slots
+
+Named slots can be used to define the correct render position of a child element.
+
+```tsx
+render(realm.root, html`<div class="card">
+    <div class="card-header">
+        <div class="card-avatar">
+            ${realm.childNodesBySlot('avatar')}
+        </div>
+        ${realm.childNodesBySlot('heading')}
+    </div>
+    ${realm.childNodes}
+</div>`);
+```
+
 ## Using `innerHTML`
 
 The `innerHTML` property is not automatically supported by Quantum DOM shims. If you are updating the `innerHTML` property of a realm root, you need to manually invoke the `realm.initialize()` method in order to update the realm child nodes list:
