@@ -1,5 +1,7 @@
 # Usage
 
+## Importing
+
 Once installed, you can import the library as ES module:
 
 ```js
@@ -61,3 +63,92 @@ render(root, html`
     <li>Item 5</li>
 `);
 ```
+
+:::details
+The `realm.root` property is a Proxy of the original root node. Properties set during the observe cycle are not applied to the original node, so you can invoke the `render` function without any side effect and context mixing.
+:::
+
+## Using `innerHTML`
+
+The `innerHTML` property is not automatically supported by Quantum DOM shims. If you are updating the `innerHTML` property of a realm root, you need to manually invoke the `realm.initialize()` method in order to update the realm child nodes list:
+
+```js
+const root = document.createElement('div');
+const realm = attachRealm(root);
+
+root.innerHTML = '<p>Hello World</p>';
+realm.initialize();
+```
+
+## Realm API
+
+A realm instance exposes the following methods and properties:
+
+#### `realm.node`
+
+The original root node.
+
+#### `realm.root`
+
+The root node proxy for internal rendering.
+
+#### `realm.childNodes`
+
+The child nodes of the realm.
+
+#### `realm.open`
+
+Whether the realm is open or not.
+
+#### `realm.initialize()`
+
+Initialize the realm child nodes list by removing from the DOM all the child nodes of the root node.
+
+#### `realm.observe(callback)`
+
+Observe the realm for mutations. The callback is invoked with a `MutationRecord` array.
+
+```ts
+type MutationRecord = {
+    addedNodes: Node[];
+    removedNodes: Node[];
+    previousSibling: Node | null;
+    nextSibling: Node | null
+}
+```
+
+#### `realm.unobserve(callback)`
+
+Stop observing the realm for mutations.
+
+#### `realm.requestUpdate(callback)`
+
+Request an internal update of the realm. The realm get opened and the callback is invoked. Once the callback is completed, the realm get closed again. It is useful to perform an internal realm rendering.
+
+#### `realm.getPreviousSibling(node)`
+
+Get the previous sibling of a node in the realm.
+
+#### `realm.getNextSibling(node)`
+
+Get the next sibling of a node in the realm.
+
+#### `realm.append(...nodes)`
+
+Append nodes to the realm.
+
+#### `realm.prepend(...nodes)`
+
+Prepend nodes to the realm.
+
+#### `realm.remove(...nodes)`
+
+Remove nodes from the realm.
+
+#### `realm.replaceWith(oldNode, ...nodes)`
+
+Replace a node with other nodes in the realm.
+
+#### `realm.insertBefore(referenceNode, ...nodes)`
+
+Insert nodes before a reference node in the realm.
