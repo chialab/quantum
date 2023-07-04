@@ -1,5 +1,3 @@
-import { NodeList as ShimNodeList } from './NodeList.js';
-
 /**
  * @typedef {(mutations: MutationRecord[]) => void} RealmChangeCallback
  */
@@ -92,13 +90,6 @@ export class Realm {
     _childNodes;
 
     /**
-     * The child nodes of the realm as a NodeList.
-     * @type {NodeList}
-     * @protected
-     */
-    _childNodesList;
-
-    /**
      * The callbacks to call when the realm changes.
      * @type {Set<RealmChangeCallback>}
      * @protected
@@ -167,13 +158,6 @@ export class Realm {
      * The child nodes of the realm as a NodeList.
      */
     get childNodes() {
-        return this._childNodesList;
-    }
-
-    /**
-     * The child nodes of the realm as array.
-     */
-    get childNodesAsArray() {
         return this._childNodes;
     }
 
@@ -189,7 +173,6 @@ export class Realm {
      */
     initialize() {
         this._childNodes = [].slice.call(this.node.childNodes);
-        this._childNodesList = new ShimNodeList(this._childNodes);
 
         this._childNodes.forEach((node) => {
             node.remove();

@@ -1,93 +1,40 @@
 /**
- * A shim for the NodeList class.
+ * Create a NodeList programmatically.
+ * @param {ChildNode[]} childNodes Child nodes array.
+ * @returns A NodeList.
  */
-const ShimNodeList = /** @type {{ new(array: Node[]): NodeList; prototype: NodeList }} */ (
-    /** @type {unknown} */ (
-        class ShimNodeList {
-            /**
-             * The array of nodes.
-             * @type {Node[]}
-             * @private
-             */
-            _array;
+export function createNodeList(childNodes) {
+    return /** @type {NodeList} */ (
+        /** @type {unknown} */ (
+            new Proxy(childNodes, {
+                get(target, key) {
+                    if (key === 'item') {
+                        /**
+                         * @this {ChildNode[]}
+                         * @param {number} index
+                         */
+                        const item = function item(index) {
+                            return this[index] || null;
+                        };
 
-            /**
-             * Creates a new NodeList.
-             * @param {Node[]} array The array of nodes.
-             */
-            constructor(array) {
-                this._array = array;
+                        return item.bind(target);
+                    }
 
-                return new Proxy(this, {
-                    get(target, key) {
-                        if (typeof key === 'number' || (typeof key === 'string' && !isNaN(Number(key)))) {
-                            return target.item(Number(key));
-                        }
-                        return Reflect.get(target, key);
-                    },
-                });
-            }
-
-            /**
-             * The number of nodes in the NodeList.
-             */
-            get length() {
-                return this._array.length;
-            }
-
-            /**
-             * Returns the node at the given index.
-             * @param {number} index The index of the node.
-             * @returns {Node | null} The node at the given index, or null if the index is out of range.
-             */
-            item(index) {
-                return this._array[index] ?? null;
-            }
-
-            /**
-             * Calls the given callback function for each node in the NodeList.
-             * @param {(value: Node, key: number, parent: NodeList, thisArg?: any) => void} callbackfn The callback function.
-             * @param {any} [thisArg] The value to use as `this` when calling the callback function.
-             */
-            forEach(callbackfn, thisArg) {
-                this._array.forEach((node, key) =>
-                    callbackfn(node, key, /** @type {NodeList} */ (/** @type {unknown} */ (this)), thisArg)
-                );
-            }
-
-            /**
-             * Returns an iterator for the NodeList entries.
-             * @returns {IterableIterator<[number, Node]>}
-             */
-            entries() {
-                return this._array.entries();
-            }
-
-            /**
-             * Returns an iterator for the NodeList keys.
-             * @returns {IterableIterator<number>}
-             */
-            keys() {
-                return this._array.keys();
-            }
-
-            /**
-             * Returns an iterator for the NodeList values.
-             * @returns {IterableIterator<Node>}
-             */
-            values() {
-                return this._array.values();
-            }
-
-            /**
-             * Returns an iterator for the NodeList.
-             * @returns {IterableIterator<Node>}
-             */
-            [Symbol.iterator]() {
-                return this._array[Symbol.iterator]();
-            }
-        }
-    )
-);
-
-export { ShimNodeList as NodeList };
+                    return Reflect.get(target, key);
+                },
+                has(target, key) {
+                    if (key === 'item') {
+                        return true;
+                    }
+                    return Reflect.has(target, key);
+                },
+                set(target, key, value) {
+                    return Reflect.set(target, key, value);
+                },
+                getPrototypeOf() {
+                    return NodeList.prototype;
+                },
+            })
+        )
+    );
+}

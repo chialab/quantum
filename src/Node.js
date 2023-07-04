@@ -1,3 +1,4 @@
+import { createNodeList } from './NodeList.js';
 import { getRealm, getParentRealm } from './Realm.js';
 import { defineProperty } from './utils.js';
 
@@ -85,7 +86,7 @@ defineProperty(NodePrototype, 'childNodes', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (childNodes).get.call(this);
         }
-        return realm.childNodes;
+        return createNodeList(realm.childNodes);
     },
     set: childNodes.set,
 });
@@ -113,7 +114,7 @@ defineProperty(NodePrototype, 'firstChild', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (firstChild).get.call(this) ?? null;
         }
-        return realm.childNodes.item(0) ?? null;
+        return realm.childNodes[0] ?? null;
     },
     set: firstChild.set,
 });
@@ -127,7 +128,7 @@ defineProperty(NodePrototype, 'lastChild', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (lastChild).get.call(this) ?? null;
         }
-        return realm.childNodes.item(realm.childNodes.length - 1) ?? null;
+        return realm.childNodes[realm.childNodes.length - 1] ?? null;
     },
     set: lastChild.set,
 });

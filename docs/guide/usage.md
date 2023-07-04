@@ -44,7 +44,7 @@ const realm = useRealm(root);
 realm.observe((mutations) => {
     // render internal template
     render(realm.root, html`<ul>
-        ${realm.childNodesAsArray}
+        ${realm.childNodes}
     </ul>`);
 });
 
