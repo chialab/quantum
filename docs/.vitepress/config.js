@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'Quantum',
-    description: 'A light DOM implementation of the `<slot>` element to be used across frameworks.',
+    description: 'Custom elements composability made easy',
     themeConfig: {
         logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',
 
@@ -24,11 +24,10 @@ export default defineConfig({
                 text: 'Guide',
                 items: [
                     { text: 'Why Quantum', link: '/guide/why-quantum' },
+                    { text: 'Features', link: '/guide/features' },
                     { text: 'Getting started', link: '/guide/' },
                     { text: 'Usage', link: '/guide/usage' },
-                    { text: 'Features', link: '/guide/features' },
-                    { text: 'Web Components', link: '/guide/web-components' },
-                    { text: 'Frameworks', link: '/guide/frameworks' },
+                    { text: 'Custom Elements', link: '/guide/custom-elements' },
                 ],
             },
         ],

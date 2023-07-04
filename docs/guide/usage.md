@@ -38,7 +38,7 @@ realm.observe((mutations) => {
 
 During the observe cycle, the realm is "open". It means that nodes can be appended to the root node and they will be regularly rendered by the browser.
 
-At this time, you can use a generic view library to render the internal template of the component. In the example below, we use [uhtml](https://github.com/WebReflection/uhtml) because it natively support Node instances:
+At this time, you can use a generic view library to render the internal template of the component. In the example below, we use [µhtml](https://github.com/WebReflection/uhtml) because it natively support Node instances:
 
 ```js
 import { render, html } from 'uhtml';
@@ -152,3 +152,7 @@ Replace a node with other nodes in the realm.
 #### `realm.insertBefore(referenceNode, ...nodes)`
 
 Insert nodes before a reference node in the realm.
+
+#### `realm.childNodesBySlot(name?: string)`
+
+Get the child nodes of the realm filtered by slot name. If no name is provided, it will provide children with undeclared slot.

@@ -1,9 +1,9 @@
 /**
- * @typedef {(mutations: MutationRecord[]) => void} RealmChangeCallback
+ * @typedef {{ addedNodes: ChildNode[]; removedNodes: ChildNode[]; previousSibling: ChildNode | null; nextSibling: ChildNode | null }} MutationRecord
  */
 
 /**
- * @typedef {{ addedNodes: ChildNode[]; removedNodes: ChildNode[]; previousSibling: ChildNode | null; nextSibling: ChildNode | null }} MutationRecord
+ * @typedef {(mutations: MutationRecord[]) => void} RealmChangeCallback
  */
 
 const REALM_SYMBOL = Symbol();
@@ -460,5 +460,21 @@ export class Realm {
                 nextSibling: node,
             },
         ]);
+    }
+
+    /**
+     * Filter child nodes by `slot` attribute name.
+     * @param {string|null} name The name of the slot. `null` for unnamed slot.
+     */
+    childNodesBySlot(name = null) {
+        return this.childNodes.filter((child) => {
+            if (child.nodeType !== 1 /** Node.ELEMENT_NODE */) {
+                // collect non-element nodes only if the slot is unnamed
+                return !name;
+            }
+
+            const slotName = /** @type {HTMLElement} */ (child).getAttribute('slot') || null;
+            return slotName === name;
+        });
     }
 }

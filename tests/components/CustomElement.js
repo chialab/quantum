@@ -14,17 +14,10 @@ export class CustomElement extends HTMLElement {
     }
 
     forceUpdate() {
-        const { root, childNodes } = this.realm;
-
         render(
-            root,
+            this.realm.root,
             html`
-                <span>${childNodes.filter((node) => node.nodeType !== 1 || node.getAttribute('slot') === null)}</span
-                ><div
-                    >${childNodes.filter(
-                        (node) => node.nodeType === 1 && node.getAttribute('slot') === 'children'
-                    )}</div
-                >
+                <span>${this.realm.childNodesBySlot(null)}</span><div>${this.realm.childNodesBySlot('children')}</div>
             `
         );
     }
