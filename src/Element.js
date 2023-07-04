@@ -109,12 +109,7 @@ defineProperty(ElementPrototype, 'lastElementChild', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (lastElementChild).get.call(this);
         }
-        return (
-            realm.childNodes
-                .slice(0)
-                .reverse()
-                .find((node) => node.nodeType === 1) ?? null
-        );
+        return realm.childNodes.reverse().find((node) => node.nodeType === 1) ?? null;
     },
     set: lastElementChild.set,
 });

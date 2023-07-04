@@ -158,7 +158,7 @@ export class Realm {
      * The child nodes of the realm as a NodeList.
      */
     get childNodes() {
-        return this._childNodes;
+        return this._childNodes.slice(0);
     }
 
     /**
