@@ -10,44 +10,17 @@
     <body>
         <div id="app"></div>
         <script type="module">
-            import { html } from 'htm/preact';
             import { render } from 'preact';
             import { useRef, useEffect } from 'preact/hooks';
+            import { render as uRender, html } from 'uhtml';
             import { attachRealm } from './src/index.js';
-
-            const Slot = ({ slotted }) => {
-                const ref = useRef(null);
-                useEffect(() => {
-                    const parent = ref.current;
-                    const children = parent.childNodes;
-                    const length = slotted.length;
-
-                    let currentNode = children.item(0);
-                    for (let i = 0; i < length; i++) {
-                        const node = slotted[i];
-                        if (currentNode !== node) {
-                            parent.insertBefore(node, currentNode);
-                        } else {
-                            currentNode = children.item(i + 1);
-                        }
-                    }
-
-                    while (children.length > length) {
-                        parent.removeChild(parent.lastChild);
-                    }
-                });
-
-                return html`<div ref=${ref} />`;
-            };
 
             const root = document.getElementById('app');
             const realm = attachRealm(root);
             realm.observe(() => {
-                render(
-                    html`<strong>
-                        ${realm.childNodes.length ? html`<${Slot} slotted=${realm.childNodes} />` : 'Default content'}
-                    </strong>`,
-                    realm.root
+                uRender(
+                    realm.root,
+                    html`<strong> ${realm.childNodes.length ? realm.childNodesAsArray : 'Default content'} </strong>`
                 );
             });
 

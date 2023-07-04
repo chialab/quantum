@@ -11,8 +11,8 @@ hero:
     alt: DNA logo
   actions:
     - theme: brand
-      text: Get started
-      link: /guide/get-started
+      text: Getting started
+      link: /guide/
     - theme: alt
       text: Features
       link: /guide/features

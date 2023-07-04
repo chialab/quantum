@@ -69,7 +69,7 @@ describe('Svelte', () => {
         );
     });
 
-    test.only('should update named slots', async () => {
+    test('should update named slots', async () => {
         const { component, container: body } = render(Test3, {
             props: {
                 title: true,

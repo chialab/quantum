@@ -119,15 +119,6 @@ export class Realm {
     constructor(node) {
         this._node = node;
         this._document = node.ownerDocument || document;
-        this._childNodes = [].slice.call(node.childNodes);
-        this._childNodesList = new ShimNodeList(this._childNodes);
-
-        this._childNodes.forEach((node) => {
-            node.remove();
-            setParentRealm(node, this);
-        });
-
-        this._notifyUpdate();
 
         const store = new Map();
         const proto = Object.getPrototypeOf(node);
@@ -154,6 +145,8 @@ export class Realm {
                 return true;
             },
         });
+
+        this.initialize();
     }
 
     /**
@@ -178,10 +171,32 @@ export class Realm {
     }
 
     /**
+     * The child nodes of the realm as array.
+     */
+    get childNodesAsArray() {
+        return this._childNodes;
+    }
+
+    /**
      * Whether the realm is open.
      */
     get open() {
         return this._open;
+    }
+
+    /**
+     * Initialize the realm.
+     */
+    initialize() {
+        this._childNodes = [].slice.call(this.node.childNodes);
+        this._childNodesList = new ShimNodeList(this._childNodes);
+
+        this._childNodes.forEach((node) => {
+            node.remove();
+            setParentRealm(node, this);
+        });
+
+        this._notifyUpdate();
     }
 
     /**

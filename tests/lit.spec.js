@@ -2,7 +2,7 @@ import { html, render } from 'lit';
 import { test, describe, expect } from 'vitest';
 import './components/CustomElement.js';
 
-describe('Preact', () => {
+describe('Lit', () => {
     test('should update text content', () => {
         const Template = (text) => html`<custom-element>${text}</custom-element>`;
         const container = document.createElement('div');

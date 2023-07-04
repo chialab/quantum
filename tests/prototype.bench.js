@@ -1,7 +1,6 @@
 /* eslint-disable mocha/no-setup-in-describe */
 
-import { html } from 'htm/preact';
-import { render } from 'preact';
+import { h, render } from 'preact';
 import { bench, describe } from 'vitest';
 
 describe('prototype', () => {
@@ -9,12 +8,14 @@ describe('prototype', () => {
         const container = document.createElement('div');
         const items = Array.from({ length: 1000 }, (_, i) => i);
         render(
-            html`<ul>
-                ${items.map((item) => html`<li>${item}</li>`)}
-            </ul>`,
+            h(
+                'ul',
+                null,
+                items.map((item) => h('li', null, item))
+            ),
             container
         );
-        render(html`<ul></ul>`, container);
+        render(h('ul', null, []), container);
     });
 
     bench('quantum', async () => {
@@ -24,11 +25,13 @@ describe('prototype', () => {
 
         attachRealm(container);
         render(
-            html`<ul>
-                ${items.map((item) => html`<li>${item}</li>`)}
-            </ul>`,
+            h(
+                'ul',
+                null,
+                items.map((item) => h('li', null, item))
+            ),
             container
         );
-        render(html`<ul></ul>`, container);
+        render(h('ul', null, []), container);
     });
 });

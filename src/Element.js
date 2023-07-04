@@ -67,7 +67,7 @@ defineProperty(ElementPrototype, 'children', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (children).get.call(this);
         }
-        return Array.from(realm.childNodes).filter((node) => node.nodeType === 1);
+        return realm.childNodesAsArray.filter((node) => node.nodeType === 1);
     },
     set: children.set,
 });
@@ -81,7 +81,7 @@ defineProperty(ElementPrototype, 'childElementCount', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (childElementCount).get.call(this);
         }
-        return Array.from(realm.childNodes).filter((node) => node.nodeType === 1).length;
+        return realm.childNodesAsArray.filter((node) => node.nodeType === 1).length;
     },
     set: childElementCount.set,
 });
@@ -95,7 +95,7 @@ defineProperty(ElementPrototype, 'firstElementChild', {
         if (!realm) {
             return /** @type {import('./utils.js').GetterDescriptor} */ (firstElementChild).get.call(this);
         }
-        return Array.from(realm.childNodes).find((node) => node.nodeType === 1) ?? null;
+        return realm.childNodesAsArray.find((node) => node.nodeType === 1) ?? null;
     },
     set: firstElementChild.set,
 });
@@ -110,7 +110,8 @@ defineProperty(ElementPrototype, 'lastElementChild', {
             return /** @type {import('./utils.js').GetterDescriptor} */ (lastElementChild).get.call(this);
         }
         return (
-            Array.from(realm.childNodes)
+            realm.childNodesAsArray
+                .slice(0)
                 .reverse()
                 .find((node) => node.nodeType === 1) ?? null
         );

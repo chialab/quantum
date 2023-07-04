@@ -13,7 +13,7 @@ export class CustomElement extends HTMLElement {
     }
 
     forceUpdate() {
-        const { root, childNodes } = this.realm;
+        const { root, childNodesAsArray } = this.realm;
 
         let span = root.childNodes[0];
         let div = root.childNodes[1];
@@ -28,15 +28,11 @@ export class CustomElement extends HTMLElement {
 
         reconcile(
             span,
-            Array.from(childNodes).filter(
-                (node) => !(node instanceof HTMLElement) || node.getAttribute('slot') === null
-            )
+            childNodesAsArray.filter((node) => !(node instanceof HTMLElement) || node.getAttribute('slot') === null)
         );
         reconcile(
             div,
-            Array.from(childNodes).filter(
-                (node) => node instanceof HTMLElement && node.getAttribute('slot') === 'children'
-            )
+            childNodesAsArray.filter((node) => node instanceof HTMLElement && node.getAttribute('slot') === 'children')
         );
     }
 }

@@ -15,7 +15,7 @@ export default defineConfig({
             },
             {
                 text: 'Guide',
-                link: '/guide/get-started',
+                link: '/guide/',
             },
         ],
 
@@ -24,21 +24,11 @@ export default defineConfig({
                 text: 'Guide',
                 items: [
                     { text: 'Why Quantum', link: '/guide/why-quantum' },
-                    { text: 'Get started', link: '/guide/get-started' },
-                    { text: 'Features', link: '/guide/features' },
+                    { text: 'Getting started', link: '/guide/' },
                     { text: 'Usage', link: '/guide/usage' },
+                    { text: 'Features', link: '/guide/features' },
                     { text: 'Web Components', link: '/guide/web-components' },
-                ],
-            },
-            {
-                text: 'Frameworks',
-                items: [
-                    { text: 'Overview', link: '/guide/frameworks' },
-                    { text: 'Lit', link: '/guide/frameworks/lit' },
-                    { text: 'Peact', link: '/guide/frameworks/preact' },
-                    { text: 'React', link: '/guide/frameworks/react' },
-                    { text: 'Svelte', link: '/guide/frameworks/svelte' },
-                    { text: 'Vue', link: '/guide/frameworks/vue' },
+                    { text: 'Frameworks', link: '/guide/frameworks' },
                 ],
             },
         ],
@@ -52,7 +42,8 @@ export default defineConfig({
 
         footer: {
             message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2023 - Chialab',
+            copyright: 'Copyright © 2023 - DNA project - Chialab',
         },
     },
+    lastUpdated: true,
 });
