@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'Quantum',
-    description: 'Custom elements composability made easy',
+    description: 'Custom elements composition made easy',
     themeConfig: {
         logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',
 

@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "Quantum"
   text: ""
-  tagline: "Custom elements composability made easy"
+  tagline: "Custom elements composition made easy"
   image:
     src: https://raw.githubusercontent.com/chialab/dna/main/logo.svg
     alt: DNA logo
