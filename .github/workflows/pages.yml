@@ -1,6 +1,6 @@
 name: Pages
 on:
-  workflow_call:  # Questo permette di eseguire manualmente il workflow
+  workflow_call:
 
 jobs:
   build:
