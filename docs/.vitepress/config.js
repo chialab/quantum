@@ -4,6 +4,9 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
     title: 'Quantum',
     description: 'Custom elements composition made easy',
+    base: '/quantum/',
+    outDir: '../public',
+
     themeConfig: {
         logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',
 

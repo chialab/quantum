@@ -41,27 +41,33 @@ During the observe cycle, the realm is "open". It means that nodes can be append
 At this time, you can use a generic view library to render the internal template of the component. In the example below, we use [µhtml](https://github.com/WebReflection/uhtml) because it natively support Node instances:
 
 ```js
-import { render, html } from 'uhtml';
 import { attachRealm } from '@chialab/quantum';
+import { render, html } from 'uhtml';
 
 const root = document.createElement('div');
 const realm = attachRealm(root);
 
 realm.observe(() => {
     // render internal template
-    render(realm.root, html`<ul>
-        ${realm.childNodes}
-    </ul>`);
+    render(
+        realm.root,
+        html`<ul>
+            ${realm.childNodes}
+        </ul>`
+    );
 });
 
 // append slotted items
-render(root, html`
-    <li>Item 1</li>
-    <li>Item 2</li>
-    <li>Item 3</li>
-    <li>Item 4</li>
-    <li>Item 5</li>
-`);
+render(
+    root,
+    html`
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>Item 4</li>
+        <li>Item 5</li>
+    `
+);
 ```
 
 :::details
@@ -73,15 +79,16 @@ The `realm.root` property is a Proxy of the original root node. Properties set d
 Named slots can be used to define the correct render position of a child element.
 
 ```tsx
-render(realm.root, html`<div class="card">
-    <div class="card-header">
-        <div class="card-avatar">
-            ${realm.childNodesBySlot('avatar')}
+render(
+    realm.root,
+    html`<div class="card">
+        <div class="card-header">
+            <div class="card-avatar"> ${realm.childNodesBySlot('avatar')} </div>
+            ${realm.childNodesBySlot('heading')}
         </div>
-        ${realm.childNodesBySlot('heading')}
-    </div>
-    ${realm.childNodes}
-</div>`);
+        ${realm.childNodes}
+    </div>`
+);
 ```
 
 ## Using `innerHTML`
@@ -129,8 +136,8 @@ type MutationRecord = {
     addedNodes: Node[];
     removedNodes: Node[];
     previousSibling: Node | null;
-    nextSibling: Node | null
-}
+    nextSibling: Node | null;
+};
 ```
 
 #### `realm.unobserve(callback)`

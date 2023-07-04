@@ -9,8 +9,8 @@ Quantum interface is similar to the Shadow DOM, in that it aims to offer the sam
 In the example below, we define a custom element that uses a realm to render its internal template. We are going to use µhtml to render the template, but you can use any other view library.
 
 ```ts
-import { render, html } from 'uhtml';
 import { attachRealm } from '@chialab/quantum';
+import { render, html } from 'uhtml';
 
 export class MyElement extends HTMLComponent {
     readonly realm = attachRealm(this);
@@ -18,9 +18,7 @@ export class MyElement extends HTMLComponent {
     connectedCallback() {
         this.realm.observe(() => {
             // render internal template
-            render(this.realm.root, html`<div class="my-element__wrapper">
-                ${this.realm.childNodes}
-            </div>`);
+            render(this.realm.root, html`<div class="my-element__wrapper"> ${this.realm.childNodes} </div>`);
         });
     }
 }

@@ -18,7 +18,6 @@ describe('uhtml', () => {
         expect(element.parentNode).toBe(container);
         expect(textNode.parentNode).toBe(element);
         expect(textNode.textContent).toBe('Text');
-        console.log(textNode.textContent);
         expect(container.innerHTML).toBe(
             '<custom-element><span>Text<!--isµ0--><!--isµ0--></span><div><!--isµ1--></div></custom-element>'
         );

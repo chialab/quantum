@@ -16,11 +16,12 @@ Quantum supports named slots, which can be used to define the correct render pos
 Thanks to the programmatic access to the realm children, it is possibile to wrap every child into its own element, even for named slots. This is useful for styling purposes and/or to decorate slotted children.
 
 ```ts
-render(realm.root, html`<ul>
-    ${real.childNodes.map((child) => html`
-        <li>${child}</li>
-    `)}
-</ul>`);
+render(
+    realm.root,
+    html`<ul>
+        ${real.childNodes.map((child) => html` <li>${child}</li> `)}
+    </ul>`
+);
 ```
 
 ## Compatibility

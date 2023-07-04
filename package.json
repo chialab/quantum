@@ -1,5 +1,6 @@
 {
   "name": "@chialab/quantum",
+  "description": "Custom elements composition made easy",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.js",
@@ -24,12 +25,14 @@
     "preview": "vite preview",
     "test": "vitest test --coverage",
     "test:browser": "vitest test --browser chrome",
+    "lint": "prettier --check . && eslint . --cache",
     "bench": "vitest bench",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@chialab/eslint-config": "^4.0.3",
     "@chialab/prettier-config": "^1.2.0",
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
@@ -41,6 +44,7 @@
     "lit": "^2.7.5",
     "preact": "^10.15.1",
     "prettier": "^2.8.8",
+    "publint": "^0.1.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "svelte": "^4.0.2",
