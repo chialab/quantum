@@ -15,7 +15,6 @@ jobs:
   #   uses: ./.github/workflows/release.yml
   #   secrets: inherit
 
-  deploy:
-    needs: lint-test
+  pages:
     uses: ./.github/workflows/pages.yml
     secrets: inherit

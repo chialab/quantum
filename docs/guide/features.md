@@ -2,7 +2,7 @@
 
 ## Named slots
 
-Quantum supports named slots, which can be used to define the correct render position of a child element.
+Quantum supports named slots. Named slots can be used to define the correct render position of a child element.
 
 ```tsx
 <my-button>
