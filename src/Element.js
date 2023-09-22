@@ -15,6 +15,7 @@ const {
     after,
     before,
     replaceWith,
+    insertAdjacentElement,
 } = Object.getOwnPropertyDescriptors(ElementPrototype);
 
 defineProperty(ElementPrototype, 'append', {
@@ -200,5 +201,55 @@ defineProperty(ElementPrototype, 'replaceWith', {
             return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(this, nodes);
         }
         return parentRealm.replaceWith(this, ...nodes);
+    },
+});
+
+defineProperty(ElementPrototype, 'insertAdjacentElement', {
+    /**
+     * @this {Element}
+     * @param {'beforebegin'|'afterbegin'|'beforeend'|'afterend'} position
+     * @param {ChildNode} node
+     */
+    value(position, node) {
+        const realm = getRealm(this);
+        const parentRealm = getParentRealm(this);
+        switch (position) {
+            case 'beforebegin':
+                if (!parentRealm) {
+                    return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        this,
+                        position,
+                        node
+                    );
+                }
+                return parentRealm.insertBefore(this, node);
+            case 'afterend':
+                if (!parentRealm) {
+                    return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        this,
+                        position,
+                        node
+                    );
+                }
+                return parentRealm.insertBefore(this.nextSibling, node);
+            case 'afterbegin':
+                if (!realm) {
+                    return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        this,
+                        position,
+                        node
+                    );
+                }
+                return realm.prepend(node);
+            case 'beforeend':
+                if (!realm) {
+                    return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        this,
+                        position,
+                        node
+                    );
+                }
+                return realm.append(node);
+        }
     },
 });

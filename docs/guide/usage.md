@@ -176,6 +176,10 @@ Replace a node with other nodes in the realm.
 
 Insert nodes before a reference node in the realm.
 
+#### `realm.insertAdjacentElement(position, node)`
+
+Insert node at given position in the realm.
+
 #### `realm.childNodesBySlot(name?: string)`
 
 Get the child nodes of the realm filtered by slot name. If no name is provided, it will provide children with undeclared slot.

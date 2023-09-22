@@ -25,7 +25,7 @@ export function attachRealm(node) {
 /**
  * Get the realm instance for a node.
  * @param {Node & { [REALM_SYMBOL]?: Realm }} node The root node.
- * @returns The realm instance or null.
+ * @returns {Realm|null} The realm instance or null.
  */
 export function getRealm(node) {
     const realm = node[REALM_SYMBOL] ?? null;
@@ -49,11 +49,20 @@ export function getParentRealm(node) {
 }
 
 /**
+ * Get the owner realm instance for a node.
+ * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm }} node The child node.
+ * @returns The owner realm instance or null.
+ */
+function getOwnerRealm(node) {
+    return node[REALM_PARENT_SYMBOL] ?? null;
+}
+
+/**
  * Set the parent realm instance for a node.
  * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm | null }} node The child node.
  * @param {Realm | null} realm The parent realm instance.
  */
-export function setParentRealm(node, realm) {
+function setParentRealm(node, realm) {
     node[REALM_PARENT_SYMBOL] = realm;
 }
 
@@ -169,6 +178,23 @@ export class Realm {
     }
 
     /**
+     * Get the closest realm ancestor of a node.
+     * @returns {Realm | null} A realm or null.
+     */
+    get ownerRealm() {
+        let parentNode = this._node.parentNode;
+        while (parentNode) {
+            const realm = getRealm(parentNode);
+            if (realm) {
+                return realm;
+            }
+            parentNode = parentNode.parentNode;
+        }
+
+        return null;
+    }
+
+    /**
      * Initialize the realm.
      */
     initialize() {
@@ -176,7 +202,9 @@ export class Realm {
 
         this._childNodes.forEach((node) => {
             node.remove();
-            setParentRealm(node, this);
+            if (!getOwnerRealm(node)) {
+                setParentRealm(node, this);
+            }
         });
 
         this._notifyUpdate();
@@ -199,18 +227,34 @@ export class Realm {
     }
 
     /**
+     * Open the realm.
+     * When using this method, you must call `dangerouslyClose` when you are done,
+     * or things will get unstable.
+     */
+    dangerouslyOpen() {
+        this._open = true;
+    }
+
+    /**
+     * Close the realm.
+     */
+    dangerouslyClose() {
+        this._open = false;
+    }
+
+    /**
      * Request an update of the realm.
      * @param {Function} callback The callback to invoke.
      */
     requestUpdate(callback) {
-        this._open = true;
+        this.dangerouslyOpen();
         try {
             callback();
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error(err);
         }
-        this._open = false;
+        this.dangerouslyClose();
     }
 
     /**
@@ -268,7 +312,15 @@ export class Realm {
             } else if (node.nodeType === 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
                 this._importNodes(Array.from(node.childNodes), acc);
             } else {
-                setParentRealm(node, this);
+                const ownerRealm = getOwnerRealm(node);
+                if (ownerRealm) {
+                    if (!ownerRealm.contains(this)) {
+                        ownerRealm.remove(/** @type {ChildNode} */ (node));
+                        setParentRealm(node, this);
+                    }
+                } else {
+                    setParentRealm(node, this);
+                }
                 acc.push(/** @type {ChildNode} */ (node));
             }
             return acc;
@@ -325,7 +377,9 @@ export class Realm {
         nodes.forEach((child) => {
             const io = this._childNodes.indexOf(child);
             if (io !== -1) {
-                setParentRealm(child, null);
+                if (getOwnerRealm(child) === this) {
+                    setParentRealm(child, null);
+                }
                 this._childNodes.splice(io, 1);
             } else {
                 throw new Error(
@@ -468,6 +522,10 @@ export class Realm {
      */
     childNodesBySlot(name = null) {
         return this.childNodes.filter((child) => {
+            if (getOwnerRealm(child) !== this) {
+                // collect nodes from other realms
+                return !name;
+            }
             if (child.nodeType !== 1 /** Node.ELEMENT_NODE */) {
                 // collect non-element nodes only if the slot is unnamed
                 return !name;
@@ -476,5 +534,14 @@ export class Realm {
             const slotName = /** @type {HTMLElement} */ (child).getAttribute('slot') || null;
             return slotName === name;
         });
+    }
+
+    /**
+     * Check if a realm is contained in this realm.
+     * @param {Realm} realm The child realm.
+     * @returns {boolean} Whether the realm is contained in this realm.
+     */
+    contains(realm) {
+        return this.root.contains(realm.node);
     }
 }
