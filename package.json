@@ -5,8 +5,10 @@
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
+  "types": "types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "default": "./src/index.js"
     }
   },
@@ -22,6 +24,7 @@
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "files": [
     "src",
+    "types",
     "CHANGELOG.md",
     "LICENSE",
     "README.md"
@@ -35,7 +38,8 @@
     "bench": "vitest bench",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "prepack": "tsc"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
