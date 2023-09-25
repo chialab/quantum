@@ -1,11 +1,8 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "latest",
   "initialVersions": {
     "@chialab/quantum": "0.0.1"
   },
-  "changesets": [
-    "kind-buckets-drop",
-    "three-trainers-design"
-  ]
+  "changesets": ["kind-buckets-drop", "three-trainers-design"]
 }
