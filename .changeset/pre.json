@@ -4,7 +4,5 @@
   "initialVersions": {
     "@chialab/quantum": "0.0.1"
   },
-  "changesets": [
-    "three-trainers-design"
-  ]
+  "changesets": ["three-trainers-design"]
 }
