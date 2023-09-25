@@ -1,6 +1,7 @@
 import { defineProperty } from './utils.js';
 
-const TreeWalkerPrototype = TreeWalker.prototype;
+const NodeFilter = window.NodeFilter;
+const TreeWalkerPrototype = window.TreeWalker.prototype;
 const NodeFilterMask = {
     1: NodeFilter.SHOW_ELEMENT,
     /* ATTRIBUTE_NODE */
