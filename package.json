@@ -20,6 +20,12 @@
   },
   "homepage": "https://www.chialab.io/p/quantum",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "files": [
+    "src",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
