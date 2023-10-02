@@ -4,10 +4,5 @@
   "initialVersions": {
     "@chialab/quantum": "0.0.1"
   },
-  "changesets": [
-    "calm-tools-tease",
-    "kind-buckets-drop",
-    "spicy-worms-double",
-    "three-trainers-design"
-  ]
+  "changesets": ["calm-tools-tease", "kind-buckets-drop", "spicy-worms-double", "three-trainers-design"]
 }
