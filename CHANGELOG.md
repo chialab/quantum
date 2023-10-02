@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+-   427dae8: Auto patch window if browser.
+
 ## 1.0.0-latest.2
 
 ### Patch Changes
