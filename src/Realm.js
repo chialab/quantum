@@ -1,5 +1,3 @@
-import { extend } from './extend.js';
-
 /**
  * @typedef {{ addedNodes: ChildNode[]; removedNodes: ChildNode[]; previousSibling: ChildNode | null; nextSibling: ChildNode | null }} MutationRecord
  */
@@ -14,11 +12,9 @@ const REALM_PARENT_SYMBOL = Symbol();
 /**
  * Create and attach a realm for a node.
  * @param {HTMLElement & { [REALM_SYMBOL]?: Realm }} node The root node.
- * @param {Window & typeof globalThis} [namespace] The namespace to use as DOM environment.
  * @returns The realm instance.
  */
-export function attachRealm(node, namespace = window) {
-    extend(namespace);
+export function attachRealm(node) {
     if (REALM_SYMBOL in node) {
         throw new Error('Node already has a realm');
     }
