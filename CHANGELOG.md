@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.0-latest.2
+
+### Patch Changes
+
+-   08d7fa6: Patch DOM methods only when required.
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes
