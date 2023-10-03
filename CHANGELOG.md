@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+-   2a8158b: Export extend methods.
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
