@@ -1,6 +1,6 @@
 import { createNodeList } from './NodeList.js';
 import { getRealm, getParentRealm } from './Realm.js';
-import { defineProperty } from './utils.js';
+import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
 
 /**
  * Extends the Node prototype with realm aware methods.
@@ -21,7 +21,7 @@ export function extendNode(Node) {
         parentElement,
         previousSibling,
         nextSibling,
-    } = Object.getOwnPropertyDescriptors(NodePrototype);
+    } = getOwnPropertyDescriptors(NodePrototype);
 
     defineProperty(NodePrototype, 'appendChild', {
         /**

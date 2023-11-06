@@ -1,5 +1,5 @@
 import { getRealm, getParentRealm } from './Realm.js';
-import { defineProperty } from './utils.js';
+import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
 
 /**
  * Extends the Element prototype with realm aware methods.
@@ -21,7 +21,7 @@ export function extendElement(Element) {
         before,
         replaceWith,
         insertAdjacentElement,
-    } = Object.getOwnPropertyDescriptors(ElementPrototype);
+    } = getOwnPropertyDescriptors(ElementPrototype);
 
     defineProperty(ElementPrototype, 'append', {
         /**

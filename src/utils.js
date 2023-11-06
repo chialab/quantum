@@ -6,4 +6,4 @@
  * @typedef {Omit<PropertyDescriptor, 'value'> & Required<Pick<PropertyDescriptor, 'value'>>} ValueDescriptor
  */
 
-export const { defineProperty } = Object;
+export const { defineProperty, getOwnPropertyDescriptors } = Object;
