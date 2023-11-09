@@ -2,16 +2,16 @@
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
+title: Quantum
+titleTemplate: Custom elements composition made easy
+
 hero:
     name: 'Quantum'
     text: ''
     tagline: 'Custom elements composition made easy'
-    image:
-        src: https://raw.githubusercontent.com/chialab/dna/main/logo.svg
-        alt: DNA logo
     actions:
         - theme: brand
-          text: Getting started
+          text: npm i @chialab/quantum
           link: /guide/
 
         - theme: alt

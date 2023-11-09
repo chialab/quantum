@@ -3,9 +3,11 @@ import { defineConfig } from 'vitepress';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'Quantum',
-    description: 'Custom elements composition made easy',
+    description: 'Custom elements composition made easy.',
     base: '/quantum/',
     outDir: '../public',
+
+    head: [['link', { rel: 'icon', href: 'https://www.chialab.it/favicon.png' }]],
 
     themeConfig: {
         logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',
@@ -19,6 +21,10 @@ export default defineConfig({
             {
                 text: 'Guide',
                 link: '/guide/',
+            },
+            {
+                text: 'Chialab.io',
+                link: 'https://www.chialab.io',
             },
         ],
 
