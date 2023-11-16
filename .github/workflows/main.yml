@@ -10,10 +10,10 @@ jobs:
   lint-test:
     uses: ./.github/workflows/lint_test.yml
 
-  # release:
-  #   needs: lint-test
-  #   uses: ./.github/workflows/release.yml
-  #   secrets: inherit
+  release:
+    needs: lint-test
+    uses: ./.github/workflows/release.yml
+    secrets: inherit
 
   pages:
     uses: ./.github/workflows/pages.yml
