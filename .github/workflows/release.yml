@@ -22,7 +22,10 @@ jobs:
       - name: Install project dependencies
         run: yarn install
 
-      - name: Lint packages
+      - name: Build package
+        run: yarn tsc
+
+      - name: Lint package
         run: yarn publint
 
       - name: Create Release Pull Request or Publish to npm
