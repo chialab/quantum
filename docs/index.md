@@ -8,7 +8,7 @@ titleTemplate: Custom elements composition made easy
 hero:
     name: 'Quantum'
     text: ''
-    tagline: 'Custom elements composition made easy'
+    tagline: 'Custom elements composition made easy.'
     actions:
         - theme: brand
           text: npm i @chialab/quantum

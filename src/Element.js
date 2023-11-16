@@ -223,7 +223,7 @@ export function extendElement(Element) {
             switch (position) {
                 case 'beforebegin':
                     if (!parentRealm) {
-                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
                             this,
                             position,
                             node
@@ -232,7 +232,7 @@ export function extendElement(Element) {
                     return parentRealm.insertBefore(this, node);
                 case 'afterend':
                     if (!parentRealm) {
-                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
                             this,
                             position,
                             node
@@ -241,7 +241,7 @@ export function extendElement(Element) {
                     return parentRealm.insertBefore(this.nextSibling, node);
                 case 'afterbegin':
                     if (!realm) {
-                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
                             this,
                             position,
                             node
@@ -250,7 +250,7 @@ export function extendElement(Element) {
                     return realm.prepend(node);
                 case 'beforeend':
                     if (!realm) {
-                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.apply(
+                        return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
                             this,
                             position,
                             node
