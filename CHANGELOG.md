@@ -1,5 +1,15 @@
 # @chialab/quantum
 
+## 1.0.0-alpha.6
+
+### Minor Changes
+
+-   48c4b21: Add `dangerouslyOpenRealms` and `dangerouslyCloseRealms` methods for interoperability.
+
+### Patch Changes
+
+-   dfe7ae2: Fix `previousNode` and `nextNode` impl in TreeWalker.
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes
