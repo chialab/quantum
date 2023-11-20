@@ -9,7 +9,7 @@ describe('React', () => {
         const container = document.createElement('div');
         const root = ReactDOM.createRoot(container);
         root.render(Template('Text'));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         const element = container.children[0];
         const textNode = element.childNodes[0];
@@ -25,7 +25,7 @@ describe('React', () => {
         );
 
         root.render(Template('Update'));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(container.childNodes.length).toBe(1);
         expect(container.children[0]).toBe(element);
@@ -41,7 +41,7 @@ describe('React', () => {
         const container = document.createElement('div');
         const root = ReactDOM.createRoot(container);
         root.render(Template('Text'));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         const element = container.children[0];
         const textNode = element.childNodes[0];
@@ -57,7 +57,7 @@ describe('React', () => {
         );
 
         root.render(Template('Update'));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(container.childNodes.length).toBe(1);
         expect(container.children[0]).toBe(element);
@@ -80,7 +80,7 @@ describe('React', () => {
         const container = document.createElement('div');
         const root = ReactDOM.createRoot(container);
         root.render(Template(true));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         const element = container.children[0];
         const textNode = element.childNodes[0];
@@ -93,7 +93,7 @@ describe('React', () => {
         );
 
         root.render(Template(false));
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(element.childNodes.length).toBe(3);
         expect(element.childNodes[0]).toBe(textNode);

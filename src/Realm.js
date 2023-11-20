@@ -10,6 +10,25 @@ const REALM_SYMBOL = Symbol();
 const REALM_PARENT_SYMBOL = Symbol();
 
 /**
+ * Whether all realms are open.
+ */
+let opened = false;
+
+/**
+ * Open all realms.
+ */
+export function dangerouslyOpenRealms() {
+    opened = true;
+}
+
+/**
+ * Close all realms.
+ */
+export function dangerouslyCloseRealms() {
+    opened = false;
+}
+
+/**
  * Create and attach a realm for a node.
  * @param {HTMLElement & { [REALM_SYMBOL]?: Realm }} node The root node.
  * @returns The realm instance.
@@ -25,9 +44,16 @@ export function attachRealm(node) {
 /**
  * Get the realm instance for a node.
  * @param {Node & { [REALM_SYMBOL]?: Realm }} node The root node.
+ * @param {boolean} editMode Whether to return a realm in edit mode.
  * @returns {Realm|null} The realm instance or null.
  */
-export function getRealm(node) {
+export function getRealm(node, editMode = false) {
+    if (opened) {
+        if (editMode) {
+            throw new Error('Cannot get realm in edit mode when all realms are open');
+        }
+        return null;
+    }
     const realm = node[REALM_SYMBOL] ?? null;
     if (realm && !realm.open) {
         return realm;
@@ -38,9 +64,16 @@ export function getRealm(node) {
 /**
  * Get the parent realm instance for a node.
  * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm }} node The child node.
+ * @param {boolean} editMode Whether to return a realm in edit mode.
  * @returns The parent realm instance or null.
  */
-export function getParentRealm(node) {
+export function getParentRealm(node, editMode = false) {
+    if (opened) {
+        if (editMode) {
+            throw new Error('Cannot get realm in edit mode when all realms are open');
+        }
+        return null;
+    }
     const realm = node[REALM_PARENT_SYMBOL] ?? null;
     if (realm && !realm.open) {
         return realm;

@@ -29,7 +29,7 @@ export function extendNode(Node) {
          * @param {ChildNode} node
          */
         value(node) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (appendChild).value.call(this, node);
             }
@@ -43,7 +43,7 @@ export function extendNode(Node) {
          * @param {ChildNode} node
          */
         value(node) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (removeChild).value.call(this, node);
             }
@@ -58,7 +58,7 @@ export function extendNode(Node) {
          * @param {ChildNode} child
          */
         value(node, child) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (replaceChild).value.call(this, node, child);
             }
@@ -73,7 +73,7 @@ export function extendNode(Node) {
          * @param {ChildNode | null} child
          */
         value(node, child) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (insertBefore).value.call(this, node, child);
             }

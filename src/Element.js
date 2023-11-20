@@ -29,7 +29,7 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (append).value.apply(this, nodes);
             }
@@ -43,7 +43,7 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const realm = getRealm(this);
+            const realm = getRealm(this, true);
             if (!realm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (prepend).value.apply(this, nodes);
             }
@@ -56,7 +56,7 @@ export function extendElement(Element) {
          * @this {Element}
          */
         value() {
-            const parentRealm = getParentRealm(this);
+            const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (remove).value.call(this);
             }
@@ -171,7 +171,7 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this);
+            const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (after).value.apply(this, nodes);
             }
@@ -189,7 +189,7 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this);
+            const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (before).value.apply(this, nodes);
             }
@@ -203,7 +203,7 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this);
+            const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(this, nodes);
             }
@@ -218,8 +218,8 @@ export function extendElement(Element) {
          * @param {ChildNode} node
          */
         value(position, node) {
-            const realm = getRealm(this);
-            const parentRealm = getParentRealm(this);
+            const realm = getRealm(this, true);
+            const parentRealm = getParentRealm(this, true);
             switch (position) {
                 case 'beforebegin':
                     if (!parentRealm) {
