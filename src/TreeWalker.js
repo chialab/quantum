@@ -40,6 +40,10 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
                     // iterate
                 }
             }
+            if (this.currentNode === this.root) {
+                delete this._currentNode;
+                return null;
+            }
             return this.currentNode;
         },
     });
@@ -48,6 +52,10 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
         value() {
             while (!this.previousSibling() && this.parentNode()) {
                 // iterate
+            }
+            if (this.currentNode === this.root) {
+                delete this._currentNode;
+                return null;
             }
             return this.currentNode;
         },

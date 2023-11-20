@@ -250,11 +250,9 @@ export class Realm {
         this.dangerouslyOpen();
         try {
             callback();
-        } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error(err);
+        } finally {
+            this.dangerouslyClose();
         }
-        this.dangerouslyClose();
     }
 
     /**
