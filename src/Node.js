@@ -82,6 +82,19 @@ export function extendNode(Node) {
         },
     });
 
+    defineProperty(NodePrototype, 'hasChildNodes', {
+        /**
+         * @this {Node}
+         */
+        value() {
+            const realm = getRealm(this);
+            if (!realm) {
+                return /** @type {import('./utils.js').ValueDescriptor} */ (hasChildNodes).value.call(this);
+            }
+            return !!realm.childNodes.length;
+        },
+    });
+
     defineProperty(NodePrototype, 'childNodes', {
         /**
          * @this {Node}
@@ -94,20 +107,6 @@ export function extendNode(Node) {
             return createNodeList(realm.childNodes);
         },
         set: childNodes.set,
-    });
-
-    defineProperty(NodePrototype, 'hasChildNodes', {
-        /**
-         * @this {Node}
-         */
-        get() {
-            const realm = getRealm(this);
-            if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (hasChildNodes).value.call(this);
-            }
-            return !!realm.childNodes.length;
-        },
-        set: hasChildNodes.set,
     });
 
     defineProperty(NodePrototype, 'firstChild', {
