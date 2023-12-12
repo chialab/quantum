@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+-   82218d2: Fix `hasChildNodes` method.
+
 ## 1.0.0-alpha.6
 
 ### Minor Changes
