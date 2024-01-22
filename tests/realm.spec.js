@@ -347,4 +347,13 @@ describe('realm', () => {
         expect(container.firstChild.textContent).toBe('test');
         expect(child.parentNode).toBe(null);
     });
+
+    test('Slotted elements are selectable', () => {
+        const container = document.createElement('div');
+        const child = document.createTextNode('test');
+        container.append(child);
+        attachRealm(container);
+        const range = document.createRange();
+        expect(() => range.selectNode(child)).not.toThrow();
+    });
 });

@@ -132,6 +132,13 @@ export class Realm {
     _childNodes;
 
     /**
+     * The fragment used to temporary store nodes.
+     * @type {DocumentFragment}
+     * @protected
+     */
+    _fragment;
+
+    /**
      * The callbacks to call when the realm changes.
      * @type {Set<RealmChangeCallback>}
      * @protected
@@ -152,6 +159,7 @@ export class Realm {
     constructor(node) {
         this._node = node;
         this._document = node.ownerDocument || document;
+        this._fragment = this._document.createDocumentFragment();
 
         const store = new Map();
         const proto = Object.getPrototypeOf(node);
@@ -234,7 +242,7 @@ export class Realm {
         this._childNodes = [].slice.call(this.node.childNodes);
 
         this._childNodes.forEach((node) => {
-            node.remove();
+            this._fragment.appendChild(node);
             if (!getOwnerRealm(node)) {
                 setParentRealm(node, this);
             }
@@ -339,6 +347,7 @@ export class Realm {
             if (typeof node === 'string') {
                 node = this._document.createTextNode(node);
                 setParentRealm(node, this);
+                this._fragment.appendChild(node);
                 acc.push(/** @type {ChildNode} */ (node));
             } else if (node.nodeType === 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
                 this._importNodes(Array.from(node.childNodes), acc);
@@ -348,9 +357,11 @@ export class Realm {
                     if (!ownerRealm.contains(this)) {
                         ownerRealm.remove(/** @type {ChildNode} */ (node));
                         setParentRealm(node, this);
+                        this._fragment.appendChild(node);
                     }
                 } else {
                     setParentRealm(node, this);
+                    this._fragment.appendChild(node);
                 }
                 acc.push(/** @type {ChildNode} */ (node));
             }
@@ -365,13 +376,12 @@ export class Realm {
      * @returns The nodes that were appended.
      */
     _append(nodes) {
-        const changed = this._importNodes(nodes).map((child) => {
+        const changed = this._importNodes(nodes);
+        changed.forEach((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
             }
-
-            return child;
         });
         this._childNodes.push(...changed);
 
@@ -385,13 +395,12 @@ export class Realm {
      * @returns The nodes that were prepended.
      */
     _prepend(nodes) {
-        const changed = this._importNodes(nodes).map((child) => {
+        const changed = this._importNodes(nodes);
+        changed.forEach((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
             }
-
-            return child;
         });
         this._childNodes.unshift(...changed);
 
@@ -412,6 +421,9 @@ export class Realm {
                     setParentRealm(child, null);
                 }
                 this._childNodes.splice(io, 1);
+                if (this._fragment.contains(child)) {
+                    this._fragment.removeChild(child);
+                }
             } else {
                 throw new Error(
                     "Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node."
@@ -437,19 +449,14 @@ export class Realm {
             );
         }
 
-        const changed = this._importNodes(nodes).map((child) => {
+        const changed = this._importNodes(nodes);
+        changed.forEach((child) => {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
             }
-
-            return child;
         });
-        if (io === 0) {
-            this._childNodes.unshift(...changed);
-        } else {
-            this._childNodes.splice(io, 0, ...changed);
-        }
+        this._childNodes.splice(io, 0, ...changed);
 
         return changed;
     }
