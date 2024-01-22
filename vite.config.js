@@ -1,5 +1,5 @@
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { fileURLToPath } from 'node:url';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -14,10 +14,14 @@ export default defineConfig({
         },
     },
     test: {
-        environment: 'jsdom',
+        browser: {
+            name: 'chrome',
+            enabled: true,
+            headless: true,
+        },
         coverage: {
-            provider: 'v8',
-            customProviderModule: '@vitest/coverage-v8',
+            provider: 'istanbul',
+            include: ['src'],
         },
     },
 });

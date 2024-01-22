@@ -1,5 +1,5 @@
-import { render, cleanup } from '@testing-library/svelte';
-import { test, describe, expect, afterEach } from 'vitest';
+import { cleanup, render } from '@testing-library/svelte';
+import { afterEach, describe, expect, test } from 'vitest';
 import Test1 from './components/Test1.svelte';
 import Test2 from './components/Test2.svelte';
 import Test3 from './components/Test3.svelte';
@@ -8,11 +8,18 @@ describe('Svelte', () => {
     afterEach(cleanup);
 
     test('should update text content', async () => {
-        const { component, container: body } = render(Test1, {
-            props: {
-                text: 'Text',
+        const body = document.createElement('div');
+        const { component } = render(
+            Test1,
+            {
+                props: {
+                    text: 'Text',
+                },
             },
-        });
+            {
+                container: body,
+            }
+        );
 
         const container = body.children[0];
         const element = container.children[0];
@@ -40,11 +47,18 @@ describe('Svelte', () => {
     });
 
     test('should update text content with multiple text nodes', async () => {
-        const { component, container: body } = render(Test2, {
-            props: {
-                text: 'Text',
+        const body = document.createElement('div');
+        const { component } = render(
+            Test2,
+            {
+                props: {
+                    text: 'Text',
+                },
             },
-        });
+            {
+                container: body,
+            }
+        );
 
         const container = body.children[0];
         const element = container.children[0];
@@ -72,11 +86,18 @@ describe('Svelte', () => {
     });
 
     test('should update named slots', async () => {
-        const { component, container: body } = render(Test3, {
-            props: {
-                title: true,
+        const body = document.createElement('div');
+        const { component } = render(
+            Test3,
+            {
+                props: {
+                    title: true,
+                },
             },
-        });
+            {
+                container: body,
+            }
+        );
         const container = body.children[0];
         const element = container.children[0];
         const textNode = element.childNodes[0];
