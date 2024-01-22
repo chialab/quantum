@@ -1,7 +1,7 @@
 {
   "name": "@chialab/quantum",
   "description": "Custom elements composition made easy",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
