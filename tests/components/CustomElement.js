@@ -1,4 +1,4 @@
-import { render, html } from 'uhtml';
+import { html, render } from 'uhtml';
 import { attachRealm } from '../../src/index.js';
 
 export class CustomElement extends HTMLElement {

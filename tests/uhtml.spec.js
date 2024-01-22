@@ -1,5 +1,5 @@
 import { html, render } from 'uhtml';
-import { test, describe, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import './components/CustomElement.js';
 
 describe('uhtml', () => {

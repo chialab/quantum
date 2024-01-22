@@ -10,7 +10,7 @@ In the example below, we define a custom element that uses a realm to render its
 
 ```ts
 import { attachRealm } from '@chialab/quantum';
-import { render, html } from 'uhtml';
+import { html, render } from 'uhtml';
 
 export class MyElement extends HTMLComponent {
     readonly realm = attachRealm(this);

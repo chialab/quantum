@@ -1,4 +1,4 @@
-import { getRealm, getParentRealm } from './Realm.js';
+import { getParentRealm, getRealm } from './Realm.js';
 import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
 
 /**

@@ -1,5 +1,5 @@
 import { html, render } from 'lit';
-import { test, describe, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import './components/CustomElement.js';
 
 describe('Lit', () => {
@@ -56,9 +56,10 @@ describe('Lit', () => {
     });
 
     test('should update named slots', () => {
-        const Template = (title) => html`<custom-element>
-            Text ${title ? html`<h1 slot="children">Title</h1>` : html`<h2 slot="children">Subtitle</h2>`}
-        </custom-element>`;
+        const Template = (title) =>
+            html`<custom-element>
+                Text ${title ? html`<h1 slot="children">Title</h1>` : html`<h2 slot="children">Subtitle</h2>`}
+            </custom-element>`;
         const container = document.createElement('div');
         render(Template(true), container);
         const element = container.children[0];

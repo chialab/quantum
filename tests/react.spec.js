@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { test, describe, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import './components/CustomElement.js';
 
 describe('React', () => {

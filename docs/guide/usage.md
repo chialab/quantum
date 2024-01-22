@@ -42,7 +42,7 @@ At this time, you can use a generic view library to render the internal template
 
 ```js
 import { attachRealm } from '@chialab/quantum';
-import { render, html } from 'uhtml';
+import { html, render } from 'uhtml';
 
 const root = document.createElement('div');
 const realm = attachRealm(root);

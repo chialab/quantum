@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -11,8 +11,8 @@
         <div id="app"></div>
         <script type="module">
             import { render } from 'preact';
-            import { useRef, useEffect } from 'preact/hooks';
-            import { render as uRender, html } from 'uhtml';
+            import { useEffect, useRef } from 'preact/hooks';
+            import { html, render as uRender } from 'uhtml';
             import { attachRealm } from './src/index.js';
 
             const root = document.getElementById('app');
