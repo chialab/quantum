@@ -1,5 +1,15 @@
 # @chialab/quantum
 
+## 1.0.0-alpha.9
+
+### Minor Changes
+
+- 51ddff0: Introducing `dangerouslyEnterRealms` global method.
+
+### Patch Changes
+
+- e1db415: Improve `TreeWalker` implementation.
+
 ## 1.0.0-alpha.8
 
 ### Patch Changes
