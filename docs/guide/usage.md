@@ -183,3 +183,26 @@ Insert node at given position in the realm.
 #### `realm.childNodesBySlot(name?: string)`
 
 Get the child nodes of the realm filtered by slot name. If no name is provided, it will provide children with undeclared slot.
+
+## Global methods
+
+The library provide some global methods to manage all realms at once. They are useful to perform global operations like accessibility checks or other tasks that need to access the full DOM tree.
+
+#### `dangerouslyEnterRealms(callback)`
+
+Open all realms and invoke the callback. Once the callback is completed, all realms get closed again.
+
+```ts
+import { dangerouslyEnterRealms } from '@chialab/quantum';
+import { run } from 'axe-core';
+
+const results = await dangerouslyEnterRealms(() => run(document));
+```
+
+#### `dangerouslyOpenRealms`
+
+Open all realms.
+
+#### `dangerouslyCloseRealms`
+
+Close all realms.

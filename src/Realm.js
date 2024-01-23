@@ -29,6 +29,35 @@ export function dangerouslyCloseRealms() {
 }
 
 /**
+ * Open all realms and call a callback.
+ * @template {(...args: any) => any} T The type of the callback.
+ * @param {T} callback The callback to invoke.
+ * @returns {ReturnType<T>} The result of the callback.
+ */
+export function dangerouslyEnterRealms(callback) {
+    opened = true;
+
+    try {
+        const result = callback();
+        if (result instanceof Promise) {
+            return /** @type {ReturnType<T>} */ (
+                result.finally(() => {
+                    opened = false;
+                    return result;
+                })
+            );
+        }
+        opened = false;
+
+        return result;
+    } catch (err) {
+        opened = false;
+
+        throw err;
+    }
+}
+
+/**
  * Create and attach a realm for a node.
  * @param {HTMLElement & { [REALM_SYMBOL]?: Realm }} node The root node.
  * @returns The realm instance.
@@ -285,14 +314,30 @@ export class Realm {
 
     /**
      * Request an update of the realm.
-     * @param {Function} callback The callback to invoke.
+     * @template {(...args: any) => any} T The type of the callback.
+     * @param {T} callback The callback to invoke.
+     * @returns {ReturnType<T>} The result of the callback.
      */
     requestUpdate(callback) {
         this.dangerouslyOpen();
+
         try {
-            callback();
-        } finally {
+            const result = callback();
+            if (result instanceof Promise) {
+                return /** @type {ReturnType<T>} */ (
+                    result.finally(() => {
+                        this.dangerouslyClose();
+                        return result;
+                    })
+                );
+            }
             this.dangerouslyClose();
+
+            return result;
+        } catch (err) {
+            this.dangerouslyClose();
+
+            throw err;
         }
     }
 
