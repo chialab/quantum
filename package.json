@@ -50,7 +50,6 @@
     "@vitest/browser": "^1.0.0",
     "@vitest/coverage-istanbul": "^1.2.1",
     "eslint": "^8.44.0",
-    "jsdom": "^22.1.0",
     "lit": "^2.7.5",
     "preact": "^10.15.1",
     "prettier": "^3.0.0",
