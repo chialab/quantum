@@ -8,7 +8,7 @@ Quantum is part of the [DNA](https://github.com/chialab/dna) project, which aims
 
 ## Install
 
-Quantum is published to the NPM registry
+Quantum is published to the NPM registry.
 
 ::: code-group
 

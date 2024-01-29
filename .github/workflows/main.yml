@@ -1,7 +1,8 @@
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -13,8 +14,4 @@ jobs:
   release:
     needs: lint-test
     uses: ./.github/workflows/release.yml
-    secrets: inherit
-
-  pages:
-    uses: ./.github/workflows/pages.yml
     secrets: inherit
