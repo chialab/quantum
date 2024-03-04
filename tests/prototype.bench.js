@@ -1,5 +1,3 @@
-/* eslint-disable mocha/no-setup-in-describe */
-
 import { h, render } from 'preact';
 import { bench, describe } from 'vitest';
 
