@@ -45,7 +45,7 @@
     "@changesets/cli": "^2.26.2",
     "@chialab/eslint-config": "^4.0.3",
     "@chialab/prettier-config": "^1.2.2",
-    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "@testing-library/svelte": "^4.0.3",
     "@vitest/browser": "^1.0.0",
     "@vitest/coverage-istanbul": "^1.2.1",
