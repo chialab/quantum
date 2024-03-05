@@ -1,5 +1,28 @@
 # @chialab/quantum
 
+## 1.0.0
+
+### Major Changes
+
+- b1cedf2: First release
+
+### Minor Changes
+
+- 51ddff0: Introducing `dangerouslyEnterRealms` global method.
+- 48c4b21: Add `dangerouslyOpenRealms` and `dangerouslyCloseRealms` methods for interoperability.
+
+### Patch Changes
+
+- 427dae8: Auto patch window if browser.
+- 3ca21f6: Store realm nodes in a temporary fragment.
+- 82218d2: Fix `hasChildNodes` method.
+- 53807b8: Add typings to package.
+- e1db415: Improve `TreeWalker` implementation.
+- 08d7fa6: Patch DOM methods only when required.
+- 0bd8cb7: Fix `insertAdjacentElement` method.
+- 2a8158b: Export extend methods.
+- dfe7ae2: Fix `previousNode` and `nextNode` impl in TreeWalker.
+
 ## 1.0.0-alpha.9
 
 ### Minor Changes
