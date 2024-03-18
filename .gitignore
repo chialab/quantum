@@ -9,7 +9,7 @@ lerna-debug.log*
 .eslintcache
 
 node_modules
-public
+/public
 coverage
 types
 *.local

@@ -7,10 +7,15 @@ export default defineConfig({
     base: '/quantum/',
     outDir: '../public',
 
-    head: [['link', { rel: 'icon', href: 'https://www.chialab.it/favicon.png' }]],
+    head: [['link', { rel: 'icon', href: '/quantum/favicon.png' }]],
 
     themeConfig: {
-        logo: 'https://raw.githubusercontent.com/chialab/dna/main/logo.svg',
+        logo: '/chialab.svg',
+
+        editLink: {
+            pattern: 'https://github.com/chialab/quantum/edit/main/docs/:path',
+            text: 'Suggest changes to this page',
+        },
 
         // https://vitepress.dev/reference/default-theme-config
         nav: [
@@ -32,7 +37,7 @@ export default defineConfig({
                 ],
             },
             {
-                text: 'Chialab.io',
+                text: 'Chialab Open Source',
                 link: 'https://www.chialab.io',
             },
         ],
@@ -43,7 +48,7 @@ export default defineConfig({
                 items: [
                     { text: 'Why Quantum', link: '/guide/why-quantum' },
                     { text: 'Features', link: '/guide/features' },
-                    { text: 'Getting started', link: '/guide/' },
+                    { text: 'Get started', link: '/guide/' },
                     { text: 'Usage', link: '/guide/usage' },
                     { text: 'Custom Elements', link: '/guide/custom-elements' },
                 ],

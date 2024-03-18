@@ -11,7 +11,7 @@ hero:
     tagline: 'Custom elements composition made easy.'
     actions:
         - theme: brand
-          text: npm i @chialab/quantum
+          text: Get started
           link: /guide/
 
         - theme: alt
