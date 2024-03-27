@@ -277,6 +277,10 @@ export class Realm {
             }
         });
 
+        if (typeof customElements !== 'undefined') {
+            customElements.upgrade(this._fragment);
+        }
+
         this._notifyUpdate();
     }
 
