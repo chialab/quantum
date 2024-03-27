@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.1
+
+### Patch Changes
+
+- a23a405: Upgrade child nodes after realm initialization.
+
 ## 1.0.0
 
 ### Major Changes
