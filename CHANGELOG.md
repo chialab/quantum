@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.0.2
+
+### Patch Changes
+
+- de951d0: Throw edit mode error only when a realm exists.
+
 ## 1.0.1
 
 ### Patch Changes
