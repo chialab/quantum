@@ -77,13 +77,13 @@ export function attachRealm(node) {
  * @returns {Realm|null} The realm instance or null.
  */
 export function getRealm(node, editMode = false) {
+    const realm = node[REALM_SYMBOL] ?? null;
     if (opened) {
-        if (editMode) {
+        if (editMode && realm) {
             throw new Error('Cannot get realm in edit mode when all realms are open');
         }
         return null;
     }
-    const realm = node[REALM_SYMBOL] ?? null;
     if (realm && !realm.open) {
         return realm;
     }
