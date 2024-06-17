@@ -6,17 +6,11 @@ import Test3 from './components/Test3.svelte';
 
 describe('Svelte', () => {
     test('should update text content', async () => {
-        const { container, rerender } = render(
-            Test1,
-            {
-                props: {
-                    text: 'Text',
-                },
+        const { container, rerender } = render(Test1, {
+            props: {
+                text: 'Text',
             },
-            {
-                container: document.createElement('div'),
-            }
-        );
+        });
 
         const element = container.children[0];
         const textNode = element.childNodes[0];
@@ -43,17 +37,11 @@ describe('Svelte', () => {
     });
 
     test('should update text content with multiple text nodes', async () => {
-        const { container, rerender } = render(
-            Test2,
-            {
-                props: {
-                    text: 'Text',
-                },
+        const { container, rerender } = render(Test2, {
+            props: {
+                text: 'Text',
             },
-            {
-                container: document.createElement('div'),
-            }
-        );
+        });
 
         const element = container.children[0];
         const textNode = element.childNodes[0];
@@ -80,17 +68,11 @@ describe('Svelte', () => {
     });
 
     test('should update named slots', async () => {
-        const { container, rerender } = render(
-            Test3,
-            {
-                props: {
-                    title: true,
-                },
+        const { container, rerender } = render(Test3, {
+            props: {
+                title: true,
             },
-            {
-                container: document.createElement('div'),
-            }
-        );
+        });
         const element = container.children[0];
         const textNode = element.childNodes[0];
         const lastNode = element.childNodes[2];
