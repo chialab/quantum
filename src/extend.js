@@ -1,3 +1,4 @@
+import { extendCharacterData } from './CharacterData.js';
 import { extendElement } from './Element.js';
 import { extendNode } from './Node.js';
 import { extendTreeWalker } from './TreeWalker.js';
@@ -9,6 +10,7 @@ import { extendTreeWalker } from './TreeWalker.js';
 export function extend(window) {
     extendNode(window.Node);
     extendElement(window.Element);
+    extendCharacterData(window.CharacterData);
     if (typeof window.TreeWalker !== 'undefined') {
         extendTreeWalker(window.TreeWalker, window.NodeFilter);
     }
