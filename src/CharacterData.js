@@ -7,14 +7,8 @@ import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
  */
 export function extendCharacterData(CharacterData) {
     const CharacterDataPrototype = CharacterData.prototype;
-    const {
-        remove,
-        previousElementSibling,
-        nextElementSibling,
-        after,
-        before,
-        replaceWith,
-    } = getOwnPropertyDescriptors(CharacterDataPrototype);
+    const { remove, previousElementSibling, nextElementSibling, after, before, replaceWith } =
+        getOwnPropertyDescriptors(CharacterDataPrototype);
 
     defineProperty(CharacterDataPrototype, 'remove', {
         /**
