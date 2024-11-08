@@ -96,7 +96,7 @@ describe('realm', () => {
         expect(container.innerHTML).toBe('<span></span><div></div>');
     });
 
-    test.only('Node.prototype.insertBefore should work in realm', () => {
+    test('Node.prototype.insertBefore should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
         const child2 = document.createElement('span');
