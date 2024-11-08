@@ -6,6 +6,7 @@ export default defineConfig({
     plugins: [svelte(), svelteTesting()],
     test: {
         browser: {
+            provider: 'webdriverio',
             name: 'chrome',
             enabled: true,
             headless: true,
@@ -13,9 +14,6 @@ export default defineConfig({
         coverage: {
             provider: 'istanbul',
             include: ['src'],
-        },
-        alias: {
-            '@testing-library/svelte': '@testing-library/svelte/svelte5',
         },
     },
 });
