@@ -96,19 +96,27 @@ describe('realm', () => {
         expect(container.innerHTML).toBe('<span></span><div></div>');
     });
 
-    test('Node.prototype.insertBefore should work in realm', () => {
+    test.only('Node.prototype.insertBefore should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
         const child2 = document.createElement('span');
+        const child3 = document.createElement('article');
         attachRealm(container);
         container.appendChild(child);
         container.insertBefore(child2, child);
-        expect(container.childNodes.length).toBe(2);
+        container.appendChild(child3);
+        expect(container.childNodes.length).toBe(3);
         expect(container.childNodes[0]).toBe(child2);
         expect(container.childNodes[1]).toBe(child);
+        expect(container.childNodes[2]).toBe(child3);
         expect(child.parentNode).toBe(container);
         expect(child2.parentNode).toBe(container);
+        expect(child3.parentNode).toBe(container);
         expect(container.innerHTML).toBe('');
+        container.insertBefore(child2, child3);
+        expect(container.childNodes[0]).toBe(child);
+        expect(container.childNodes[1]).toBe(child2);
+        expect(container.childNodes[2]).toBe(child3);
     });
 
     test('Node.prototype.hasChildNodes|firstChild|lastChild|parentNode|parentElement|previousSibling|nextSibling should work as usual', () => {

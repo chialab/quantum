@@ -491,7 +491,7 @@ export class Realm {
      * @returns The nodes that were inserted.
      */
     _insert(node, nodes) {
-        const io = this._childNodes.indexOf(node);
+        let io = this._childNodes.indexOf(node);
         if (io === -1) {
             throw new Error(
                 "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
@@ -503,6 +503,9 @@ export class Realm {
             const previousIndex = this._childNodes.indexOf(child);
             if (previousIndex !== -1) {
                 this._childNodes.splice(previousIndex, 1);
+                if (previousIndex < io) {
+                    io--;
+                }
             }
         });
         this._childNodes.splice(io, 0, ...changed);
