@@ -1,5 +1,11 @@
 # @chialab/quantum
 
+## 1.1.1
+
+### Patch Changes
+
+-   1619112: Fix `insertBefore` children order.
+
 ## 1.1.0
 
 ### Minor Changes
