@@ -15,6 +15,7 @@ types
 *.local
 docs/.vitepress/dist
 docs/.vitepress/cache
+tests/__screenshots__
 
 # Editor directories and files
 .vscode/*

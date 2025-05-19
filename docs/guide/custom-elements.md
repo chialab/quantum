@@ -18,7 +18,7 @@ export class MyElement extends HTMLComponent {
     connectedCallback() {
         this.realm.observe(() => {
             // render internal template
-            render(this.realm.root, html`<div class="my-element__wrapper"> ${this.realm.childNodes} </div>`);
+            render(this.realm.root, html`<div class="my-element__wrapper"> ${this.childNodes} </div>`);
         });
     }
 }
@@ -47,7 +47,7 @@ export class MyButton extends HTMLButtonElement {
             // render internal template
             render(this.realm.root, html`
                 <i class="button__icon">${this.icon}</i>
-                <span class="button__label">${this.realm.childNodes}</span>
+                <span class="button__label">${this.childNodes}</span>
             `));
         });
     }

@@ -1,5 +1,7 @@
+import { createHtmlCollection, createNodeList } from './NodeList.js';
+
 /**
- * @typedef {{ addedNodes: ChildNode[]; removedNodes: ChildNode[]; previousSibling: ChildNode | null; nextSibling: ChildNode | null }} MutationRecord
+ * @typedef {{ addedNodes: Node[]; removedNodes: Node[]; previousSibling: Node | null; nextSibling: Node | null }} MutationRecord
  */
 
 /**
@@ -10,113 +12,42 @@ const REALM_SYMBOL = Symbol();
 const REALM_PARENT_SYMBOL = Symbol();
 
 /**
- * Whether all realms are open.
- */
-let opened = false;
-
-/**
- * Open all realms.
- */
-export function dangerouslyOpenRealms() {
-    opened = true;
-}
-
-/**
- * Close all realms.
- */
-export function dangerouslyCloseRealms() {
-    opened = false;
-}
-
-/**
- * Open all realms and call a callback.
- * @template {(...args: any) => any} T The type of the callback.
- * @param {T} callback The callback to invoke.
- * @returns {ReturnType<T>} The result of the callback.
- */
-export function dangerouslyEnterRealms(callback) {
-    opened = true;
-
-    try {
-        const result = callback();
-        if (result instanceof Promise) {
-            return /** @type {ReturnType<T>} */ (
-                result.finally(() => {
-                    opened = false;
-                    return result;
-                })
-            );
-        }
-        opened = false;
-
-        return result;
-    } catch (err) {
-        opened = false;
-
-        throw err;
-    }
-}
-
-/**
  * Create and attach a realm for a node.
  * @param {HTMLElement & { [REALM_SYMBOL]?: Realm }} node The root node.
  * @returns The realm instance.
  */
 export function attachRealm(node) {
-    if (REALM_SYMBOL in node) {
-        throw new Error('Node already has a realm');
-    }
-
-    return (node[REALM_SYMBOL] = new Realm(node));
+    return new Realm(node);
 }
 
 /**
  * Get the realm instance for a node.
  * @param {Node & { [REALM_SYMBOL]?: Realm }} node The root node.
- * @param {boolean} editMode Whether to return a realm in edit mode.
  * @returns {Realm|null} The realm instance or null.
  */
-export function getRealm(node, editMode = false) {
-    const realm = node[REALM_SYMBOL] ?? null;
-    if (opened) {
-        if (editMode && realm) {
-            throw new Error('Cannot get realm in edit mode when all realms are open');
-        }
-        return null;
-    }
-    if (realm && !realm.open) {
-        return realm;
-    }
-    return null;
+export function getRealm(node) {
+    return node[REALM_SYMBOL] ?? null;
 }
 
 /**
  * Get the parent realm instance for a node.
  * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm }} node The child node.
- * @param {boolean} editMode Whether to return a realm in edit mode.
  * @returns The parent realm instance or null.
  */
-export function getParentRealm(node, editMode = false) {
-    if (opened) {
-        if (editMode) {
-            throw new Error('Cannot get realm in edit mode when all realms are open');
-        }
-        return null;
-    }
-    const realm = node[REALM_PARENT_SYMBOL] ?? null;
-    if (realm && !realm.open) {
-        return realm;
-    }
-    return null;
+export function getParentRealm(node) {
+    return node[REALM_PARENT_SYMBOL] ?? null;
 }
 
 /**
  * Get the owner realm instance for a node.
- * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm }} node The child node.
- * @returns The owner realm instance or null.
+ * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm } | null} node The child node.
+ * @returns {Realm | null} The owner realm instance or null.
  */
-function getOwnerRealm(node) {
-    return node[REALM_PARENT_SYMBOL] ?? null;
+export function getOwnerRealm(node) {
+    if (!node) {
+        return null;
+    }
+    return getRealm(node) ?? getParentRealm(node) ?? getOwnerRealm(node.parentElement) ?? null;
 }
 
 /**
@@ -129,12 +60,31 @@ function setParentRealm(node, realm) {
 }
 
 /**
+ * Get the real node from a proxy.
+ * @template {Node & { __node?: T } | null} T The type of the node.
+ * @param {T} node The proxy node.
+ * @returns {T} The real node.
+ */
+export function normalizeNode(node) {
+    return node?.__node ?? node;
+}
+
+/**
+ * Normalize a list of nodes.
+ * @param {(string | Node)[]} nodes
+ * @returns {(string | Node)[]} The normalized nodes list.
+ */
+export function normalizeNodes(nodes) {
+    return nodes.map((node) => (typeof node === 'string' ? node : normalizeNode(node)));
+}
+
+/**
  * The realm class.
  */
 export class Realm {
     /**
      * The root node of the realm.
-     * @type {HTMLElement}
+     * @type {HTMLElement & { [REALM_SYMBOL]?: Realm }}
      * @protected
      */
     _node;
@@ -151,11 +101,11 @@ export class Realm {
      * @type {HTMLElement}
      * @protected
      */
-    _proxy;
+    _root;
 
     /**
      * The child nodes of the realm.
-     * @type {ChildNode[]}
+     * @type {Node[]}
      * @protected
      */
     _childNodes;
@@ -175,47 +125,27 @@ export class Realm {
     _callbacks = new Set();
 
     /**
-     * Whether the realm is open.
-     * @type {boolean}
+     * The proxied nodes in the realm.
+     * @type {WeakMap<Node, Node>}
      * @protected
      */
-    _open = false;
+    _proxies = new WeakMap();
 
     /**
      * Setup the realm.
      * @param {HTMLElement} node The root node of the realm.
      */
     constructor(node) {
+        if (node.nodeType !== 1 /** Node.ELEMENT_NODE */) {
+            throw new Error('Realm must be created with an element node');
+        }
+        if (REALM_SYMBOL in node) {
+            throw new Error('Node already has a realm');
+        }
         this._node = node;
         this._document = node.ownerDocument || document;
         this._fragment = this._document.createDocumentFragment();
-
-        const store = new Map();
-        const proto = Object.getPrototypeOf(node);
-        this._proxy = new Proxy(node, {
-            get(target, propertyKey) {
-                if (!(propertyKey in proto)) {
-                    return store.get(propertyKey);
-                }
-
-                const value = Reflect.get(target, propertyKey, node);
-                if (typeof value === 'function') {
-                    return value.bind(node);
-                }
-                return value;
-            },
-            has(target, propertyKey) {
-                if (propertyKey in store) {
-                    return true;
-                }
-                return Reflect.has(target, propertyKey);
-            },
-            set(_target, propertyKey, value) {
-                store.set(propertyKey, value);
-                return true;
-            },
-        });
-
+        this._root = this._createProxy(node);
         this.initialize();
     }
 
@@ -230,58 +160,185 @@ export class Realm {
      * The root node of the realm.
      */
     get root() {
-        return this._proxy;
+        return this._root;
     }
 
     /**
-     * The child nodes of the realm as a NodeList.
+     * The child nodes of the realm.
+     * @returns {Node[]} The child nodes of the realm.
+     * @deprecated Use `getChildren` instead.
      */
     get childNodes() {
-        return this._childNodes.slice(0);
-    }
-
-    /**
-     * Whether the realm is open.
-     */
-    get open() {
-        return this._open;
-    }
-
-    /**
-     * Get the closest realm ancestor of a node.
-     * @returns {Realm | null} A realm or null.
-     */
-    get ownerRealm() {
-        let parentNode = this._node.parentNode;
-        while (parentNode) {
-            const realm = getRealm(parentNode);
-            if (realm) {
-                return realm;
-            }
-            parentNode = parentNode.parentNode;
-        }
-
-        return null;
+        return this.getChildren();
     }
 
     /**
      * Initialize the realm.
      */
     initialize() {
-        this._childNodes = [].slice.call(this.node.childNodes);
-
-        this._childNodes.forEach((node) => {
+        this.node[REALM_SYMBOL] = undefined;
+        this._childNodes = Array.from(this.node.childNodes).map((node) => {
             this._fragment.appendChild(node);
             if (!getOwnerRealm(node)) {
                 setParentRealm(node, this);
             }
+            return node;
         });
+        this.node[REALM_SYMBOL] = this;
 
         if (typeof customElements !== 'undefined') {
             customElements.upgrade(this._fragment);
         }
 
         this._notifyUpdate();
+    }
+
+    /**
+     * Get a proxy for a node.
+     * @template {Node} T The type of the node.
+     * @param {T} node The node to get the proxy for.
+     * @returns {T} The proxied node.
+     */
+    resolveNode(node) {
+        if (this._proxies.has(node)) {
+            return /** @type {T} */ (this._proxies.get(node));
+        }
+        const proxy = this._createProxy(node);
+        this._proxies.set(node, proxy);
+        return proxy;
+    }
+
+    /**
+     * Create a proxy for a node.
+     * @template {Node} T The type of the node.
+     * @param {T} node
+     * @returns {T} The proxied node.
+     * @protected
+     */
+    _createProxy(node) {
+        const realm = this;
+        const proto = Object.getPrototypeOf(node);
+        const store = new Map();
+        const proxy = new Proxy(node, {
+            get(target, propertyKey) {
+                if (propertyKey === '__node') {
+                    return node;
+                }
+                if (propertyKey === REALM_SYMBOL || propertyKey === REALM_PARENT_SYMBOL) {
+                    return null;
+                }
+                if (propertyKey === 'constructor') {
+                    return target.constructor;
+                }
+
+                switch (propertyKey) {
+                    case 'append':
+                    case 'appendChild':
+                    case 'remove':
+                    case 'removeChild':
+                    case 'replaceChild':
+                    case 'replaceWith':
+                    case 'insertBefore':
+                    case 'prepend':
+                    case 'after':
+                    case 'before':
+                    case 'insertAdjacentElement':
+                    case 'contains': {
+                        const value = Reflect.get(target, propertyKey, proxy);
+                        if (typeof value === 'function') {
+                            return value.bind(proxy);
+                        }
+                        return value;
+                    }
+                    case 'textContent':
+                    case 'innerHTML':
+                    case 'nodeValue': {
+                        const parentRealm = getOwnerRealm(node);
+                        if (parentRealm === realm) {
+                            return null;
+                        }
+                        return Reflect.get(target, propertyKey, proxy);
+                    }
+                    case 'firstChild':
+                    case 'firstElementChild':
+                    case 'lastChild':
+                    case 'lastElementChild':
+                    case 'previousSibling':
+                    case 'previousElementSibling':
+                    case 'nextSibling':
+                    case 'nextElementSibling': {
+                        const child = /** @type {Node} */ (Reflect.get(target, propertyKey, proxy));
+                        if (child) {
+                            return realm.resolveNode(child);
+                        }
+                        return child;
+                    }
+                    case 'parentNode':
+                    case 'parentElement': {
+                        const parent = /** @type {Node} */ (Reflect.get(target, propertyKey, proxy));
+                        if (parent === realm.node) {
+                            return realm.root;
+                        }
+                        return parent;
+                    }
+                    case 'childNodes':
+                        return createNodeList(
+                            Array.from(Reflect.get(target, propertyKey, proxy)).map((child) => realm.resolveNode(child))
+                        );
+                    case 'children':
+                        return createHtmlCollection(
+                            Array.from(/** @type {HTMLCollection} */ (Reflect.get(target, propertyKey, proxy))).map(
+                                (child) => realm.resolveNode(child)
+                            )
+                        );
+                    case 'childElementCount':
+                    case 'assignedSlot':
+                        return Reflect.get(target, propertyKey, proxy);
+                    case 'shadowRoot':
+                        return null;
+                    default: {
+                        if (store.has(propertyKey)) {
+                            return store.get(propertyKey);
+                        }
+                        if (!(propertyKey in proto)) {
+                            return undefined;
+                        }
+                        const value = Reflect.get(target, propertyKey, node);
+                        if (typeof value === 'function') {
+                            return value.bind(node);
+                        }
+                        return value;
+                    }
+                }
+            },
+            has(target, propertyKey) {
+                if (store.has(propertyKey)) {
+                    return true;
+                }
+                if (!(propertyKey in proto)) {
+                    return false;
+                }
+                return Reflect.has(target, propertyKey);
+            },
+            set(_target, propertyKey, value) {
+                switch (propertyKey) {
+                    case 'textContent':
+                    case 'innerHTML':
+                    case 'nodeValue': {
+                        return Reflect.set(node, propertyKey, value);
+                    }
+                    default:
+                        store.set(propertyKey, value);
+                        break;
+                }
+                return true;
+            },
+            getPrototypeOf() {
+                return proto;
+            },
+        });
+
+        return proxy;
     }
 
     /**
@@ -301,95 +358,111 @@ export class Realm {
     }
 
     /**
-     * Open the realm.
-     * When using this method, you must call `dangerouslyClose` when you are done,
-     * or things will get unstable.
-     */
-    dangerouslyOpen() {
-        this._open = true;
-    }
-
-    /**
-     * Close the realm.
-     */
-    dangerouslyClose() {
-        this._open = false;
-    }
-
-    /**
-     * Request an update of the realm.
-     * @template {(...args: any) => any} T The type of the callback.
-     * @param {T} callback The callback to invoke.
-     * @returns {ReturnType<T>} The result of the callback.
-     */
-    requestUpdate(callback) {
-        this.dangerouslyOpen();
-
-        try {
-            const result = callback();
-            if (result instanceof Promise) {
-                return /** @type {ReturnType<T>} */ (
-                    result.finally(() => {
-                        this.dangerouslyClose();
-                        return result;
-                    })
-                );
-            }
-            this.dangerouslyClose();
-
-            return result;
-        } catch (err) {
-            this.dangerouslyClose();
-
-            throw err;
-        }
-    }
-
-    /**
      * Notifiy a realm update
      * @param {MutationRecord[]} mutations The list of mutations that triggered the update.
      */
     _notifyUpdate(mutations = []) {
-        this.requestUpdate(() => this._callbacks.forEach((callback) => callback(mutations)));
+        this._callbacks.forEach((callback) => callback(mutations));
+    }
+
+    /**
+     * Get the child nodes of the realm.
+     * @param {boolean} [filterElements=false] Whether to filter only element nodes.
+     * @returns {Node[]} The child nodes of the realm.
+     */
+    getChildren(filterElements = false) {
+        return this._childNodes.filter((node) =>
+            filterElements ? node.nodeType === 1 /** Node.ELEMENT_NODE */ : true
+        );
     }
 
     /**
      * Get the previous sibling of a node in the realm.
-     * @param {ChildNode | null} node The node to get the previous sibling of.
+     * @param {Node | null} node The node to get the previous sibling of.
+     * @param {boolean} [filterElements=false] Whether to filter only element nodes.
      * @returns The previous sibling of the node.
      */
-    getPreviousSibling(node) {
+    getPreviousSibling(node, filterElements = false) {
         if (!node) {
             return null;
         }
-        const io = this._childNodes.indexOf(node);
+        let io = this._childNodes.indexOf(node);
         if (io === -1) {
             return null;
         }
-        return this._childNodes[io - 1] ?? null;
+        while (--io >= 0) {
+            const child = this._childNodes[io];
+            if (!filterElements || child.nodeType === 1 /** Node.ELEMENT_NODE */) {
+                return child;
+            }
+        }
+        return null;
     }
 
     /**
      * Get the next sibling of a node in the realm.
-     * @param {ChildNode | null} node The node to get the next sibling of.
+     * @param {Node | null} node The node to get the next sibling of.
+     * @param {boolean} [filterElements=false] Whether to filter only element nodes.
      * @returns The next sibling of the node.
      */
-    getNextSibling(node) {
+    getNextSibling(node, filterElements = false) {
         if (!node) {
             return null;
         }
-        const io = this._childNodes.indexOf(node);
+        let io = this._childNodes.indexOf(node);
         if (io === -1) {
             return null;
         }
-        return this._childNodes[io + 1] ?? null;
+        const length = this._childNodes.length;
+        while (++io < length) {
+            const child = this._childNodes[io];
+            if (!filterElements || child.nodeType === 1 /** Node.ELEMENT_NODE */) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the first child of the realm.
+     * @param {boolean} [filterElements=false] Whether to filter only element nodes.
+     * @returns {Node | null} The first child of the realm.
+     */
+    getFirstChild(filterElements = false) {
+        const length = this._childNodes.length;
+        let i = 0;
+        while (i < length) {
+            const child = this._childNodes[i];
+            if (!filterElements || child.nodeType === 1 /** Node.ELEMENT_NODE */) {
+                return child;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    /**
+     * Get the last child of the realm.
+     * @param {boolean} [filterElements=false] Whether to filter only element nodes.
+     * @returns {Node | null} The last child of the realm.
+     */
+    getLastChild(filterElements = false) {
+        let i = this._childNodes.length - 1;
+        while (i >= 0) {
+            const child = this._childNodes[i];
+            if (!filterElements || child.nodeType === 1 /** Node.ELEMENT_NODE */) {
+                return child;
+            }
+            i--;
+        }
+        return null;
     }
 
     /**
      * Normalize nodes list.
      * @param {(Node | string)[]} nodes The nodes to normalize.
-     * @param {ChildNode[]} [acc] The accumulator.
-     * @returns The normalized nodes.
+     * @param {Node[]} [acc] The accumulator.
+     * @returns {Node[]} The normalized nodes.
      */
     _importNodes(nodes, acc = []) {
         return nodes.reduce((acc, node) => {
@@ -397,14 +470,14 @@ export class Realm {
                 node = this._document.createTextNode(node);
                 setParentRealm(node, this);
                 this._fragment.appendChild(node);
-                acc.push(/** @type {ChildNode} */ (node));
+                acc.push(node);
             } else if (node.nodeType === 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
                 this._importNodes(Array.from(node.childNodes), acc);
             } else {
                 const ownerRealm = getOwnerRealm(node);
                 if (ownerRealm) {
                     if (!ownerRealm.contains(this)) {
-                        ownerRealm.remove(/** @type {ChildNode} */ (node));
+                        ownerRealm.remove(node);
                         setParentRealm(node, this);
                         this._fragment.appendChild(node);
                     }
@@ -412,7 +485,7 @@ export class Realm {
                     setParentRealm(node, this);
                     this._fragment.appendChild(node);
                 }
-                acc.push(/** @type {ChildNode} */ (node));
+                acc.push(node);
             }
             return acc;
         }, acc);
@@ -422,7 +495,7 @@ export class Realm {
      * Internal method to append nodes to the realm.
      * @protected
      * @param {(Node | string)[]} nodes The nodes to append.
-     * @returns The nodes that were appended.
+     * @returns {Node[]} The nodes that were appended.
      */
     _append(nodes) {
         const changed = this._importNodes(nodes);
@@ -441,7 +514,7 @@ export class Realm {
      * Internal method to prepend nodes to the realm.
      * @protected
      * @param {(Node | string)[]} nodes The nodes to prepend.
-     * @returns The nodes that were prepended.
+     * @returns {Node[]} The nodes that were prepended.
      */
     _prepend(nodes) {
         const changed = this._importNodes(nodes);
@@ -459,8 +532,8 @@ export class Realm {
     /**
      * Internal method to remove nodes to the realm.
      * @protected
-     * @param {ChildNode[]} nodes The nodes to remove.
-     * @returns The nodes that were removed.
+     * @param {Node[]} nodes The nodes to remove.
+     * @returns {Node[]} The nodes that were removed.
      */
     _remove(nodes) {
         nodes.forEach((child) => {
@@ -468,6 +541,7 @@ export class Realm {
             if (io !== -1) {
                 if (getOwnerRealm(child) === this) {
                     setParentRealm(child, null);
+                    this._proxies.delete(child);
                 }
                 this._childNodes.splice(io, 1);
                 if (this._fragment.contains(child)) {
@@ -486,9 +560,9 @@ export class Realm {
     /**
      * Internal method to insert nodes to the realm.
      * @protected
-     * @param {ChildNode} node The node before which new nodes are to be inserted.
+     * @param {Node} node The node before which new nodes are to be inserted.
      * @param {(Node | string)[]} nodes The nodes to insert.
-     * @returns The nodes that were inserted.
+     * @returns {Node[]} The nodes that were inserted.
      */
     _insert(node, nodes) {
         let io = this._childNodes.indexOf(node);
@@ -516,6 +590,7 @@ export class Realm {
     /**
      * Append nodes to the realm.
      * @param  {(ChildNode | string)[]} nodes The nodes to append.
+     * @returns {Node[]} The nodes that were appended.
      */
     append(...nodes) {
         const changed = this._append(nodes);
@@ -527,11 +602,14 @@ export class Realm {
                 nextSibling: this.getNextSibling(changed[changed.length - 1]),
             },
         ]);
+
+        return changed;
     }
 
     /**
      * Prepend nodes to the realm.
      * @param {(Node | string)[]} nodes The nodes to prepend.
+     * @returns {Node[]} The nodes that were prepended.
      */
     prepend(...nodes) {
         const changed = this._prepend(nodes);
@@ -543,11 +621,14 @@ export class Realm {
                 nextSibling: this.getNextSibling(changed[changed.length - 1]),
             },
         ]);
+
+        return changed;
     }
 
     /**
      * Remove nodes from the realm.
-     * @param {ChildNode[]} nodes The nodes to remove.
+     * @param {Node[]} nodes The nodes to remove.
+     * @returns {Node[]} The nodes that were removed.
      */
     remove(...nodes) {
         const previousSibling = this.getPreviousSibling(nodes[0]);
@@ -561,12 +642,15 @@ export class Realm {
                 nextSibling,
             },
         ]);
+
+        return nodes;
     }
 
     /**
      * Replaces a realm node with nodes, while replacing strings in nodes with equivalent Text nodes.
-     * @param {ChildNode} node The node to replace.
+     * @param {Node} node The node to replace.
      * @param {(Node | string)[]} nodes The nodes or strings to replace node with. Strings are replaced with equivalent Text nodes.
+     * @returns {Node[]} The nodes that were inserted.
      */
     replaceWith(node, ...nodes) {
         const previousSibling = this.getPreviousSibling(node);
@@ -586,12 +670,15 @@ export class Realm {
                 nextSibling,
             },
         ]);
+
+        return appended;
     }
 
     /**
      * Inserts nodes or contents in the realm before node.
-     * @param {ChildNode | null} node The node before which new nodes are to be inserted.
+     * @param {Node | null} node The node before which new nodes are to be inserted.
      * @param {(Node | string)[]} nodes The nodes to be inserted.
+     * @returns {Node[]} The nodes that were inserted.
      */
     insertBefore(node, ...nodes) {
         const previousSibling = this.getPreviousSibling(node);
@@ -604,6 +691,64 @@ export class Realm {
                 nextSibling: node,
             },
         ]);
+        return appended;
+    }
+
+    /**
+     * Get the text content of the realm.
+     * @returns {string} The text content of the realm.
+     */
+    getTextContent() {
+        const walker = this._document.createTreeWalker(this.node, NodeFilter.SHOW_TEXT);
+        let textContent = '';
+        while (walker.nextNode()) {
+            textContent += walker.currentNode.nodeValue;
+        }
+        return textContent;
+    }
+
+    /**
+     * Get the HTML content of the realm.
+     * @returns {string} The HTML content of the realm.
+     */
+    getHTML() {
+        const walker = this._document.createTreeWalker(this.node, NodeFilter.SHOW_ALL);
+        /**
+         * @type {HTMLElement[]}
+         */
+        const parentsStack = [];
+        let html = '';
+        while (walker.nextNode()) {
+            const currentParent = parentsStack[parentsStack.length - 1];
+            const node = walker.currentNode;
+            switch (node.nodeType) {
+                case 1:
+                    html += `<${/** @type {HTMLElement} */ (node).tagName.toLowerCase()}${Array.from(
+                        /** @type {HTMLElement} */ (node).attributes
+                    )
+                        .map((attr) => ` ${attr.name}="${attr.value}"`)
+                        .join(' ')}>`;
+                    parentsStack.push(/** @type {HTMLElement} */ (node));
+                    break;
+                case 3:
+                    html += node.nodeValue;
+                    break;
+                case 8:
+                    html += `<!--${node.nodeValue}-->`;
+                    break;
+                default:
+                    break;
+            }
+
+            if (currentParent && currentParent.lastChild === node) {
+                parentsStack.pop();
+                html += `</${currentParent.tagName.toLowerCase()}>`;
+            }
+        }
+        if (parentsStack.length) {
+            html += `</${parentsStack[parentsStack.length - 1].tagName.toLowerCase()}>`;
+        }
+        return html;
     }
 
     /**
@@ -611,7 +756,7 @@ export class Realm {
      * @param {string|null} name The name of the slot. `null` for unnamed slot.
      */
     childNodesBySlot(name = null) {
-        return this.childNodes.filter((child) => {
+        return this._childNodes.filter((child) => {
             if (getOwnerRealm(child) !== this) {
                 // collect nodes from other realms
                 return !name;

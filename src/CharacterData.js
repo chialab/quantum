@@ -15,7 +15,7 @@ export function extendCharacterData(CharacterData) {
          * @this {Element}
          */
         value() {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (remove).value.call(this);
             }
@@ -74,7 +74,7 @@ export function extendCharacterData(CharacterData) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (after).value.apply(this, nodes);
             }
@@ -92,7 +92,7 @@ export function extendCharacterData(CharacterData) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (before).value.apply(this, nodes);
             }
@@ -106,7 +106,7 @@ export function extendCharacterData(CharacterData) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(this, nodes);
             }

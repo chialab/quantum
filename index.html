@@ -20,7 +20,7 @@
             realm.observe(() => {
                 uRender(
                     realm.root,
-                    html`<strong>${realm.childNodes.length ? realm.childNodes : 'Default content'}</strong>`
+                    html`<strong>${root.childNodes.length ? root.childNodes : 'Default content'}</strong>`
                 );
             });
 

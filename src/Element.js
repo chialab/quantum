@@ -1,4 +1,4 @@
-import { getParentRealm, getRealm } from './Realm.js';
+import { getParentRealm, getRealm, normalizeNode, normalizeNodes } from './Realm.js';
 import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
 
 /**
@@ -21,6 +21,9 @@ export function extendElement(Element) {
         before,
         replaceWith,
         insertAdjacentElement,
+        shadowRoot,
+        assignedSlot,
+        innerHTML,
     } = getOwnPropertyDescriptors(ElementPrototype);
 
     defineProperty(ElementPrototype, 'append', {
@@ -29,9 +32,12 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const realm = getRealm(this, true);
+            const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (append).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (append).value.apply(
+                    normalizeNode(this),
+                    normalizeNodes(nodes)
+                );
             }
             return realm.append(...nodes);
         },
@@ -43,9 +49,12 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const realm = getRealm(this, true);
+            const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (prepend).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (prepend).value.apply(
+                    normalizeNode(this),
+                    normalizeNodes(nodes)
+                );
             }
             return realm.prepend(...nodes);
         },
@@ -56,9 +65,9 @@ export function extendElement(Element) {
          * @this {Element}
          */
         value() {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (remove).value.call(this);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (remove).value.call(normalizeNode(this));
             }
             return parentRealm.remove(this);
         },
@@ -71,9 +80,9 @@ export function extendElement(Element) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (children).get.call(this);
+                return /** @type {import('./utils.js').GetterDescriptor} */ (children).get.call(normalizeNode(this));
             }
-            return realm.childNodes.filter((node) => node.nodeType === 1);
+            return realm.getChildren(true);
         },
         set: children.set,
     });
@@ -85,9 +94,11 @@ export function extendElement(Element) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (childElementCount).get.call(this);
+                return /** @type {import('./utils.js').GetterDescriptor} */ (childElementCount).get.call(
+                    normalizeNode(this)
+                );
             }
-            return realm.childNodes.filter((node) => node.nodeType === 1).length;
+            return realm.getChildren(true).length;
         },
         set: childElementCount.set,
     });
@@ -99,9 +110,11 @@ export function extendElement(Element) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (firstElementChild).get.call(this);
+                return /** @type {import('./utils.js').GetterDescriptor} */ (firstElementChild).get.call(
+                    normalizeNode(this)
+                );
             }
-            return realm.childNodes.find((node) => node.nodeType === 1) ?? null;
+            return realm.getFirstChild(true);
         },
         set: firstElementChild.set,
     });
@@ -113,9 +126,11 @@ export function extendElement(Element) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (lastElementChild).get.call(this);
+                return /** @type {import('./utils.js').GetterDescriptor} */ (lastElementChild).get.call(
+                    normalizeNode(this)
+                );
             }
-            return realm.childNodes.reverse().find((node) => node.nodeType === 1) ?? null;
+            return realm.getLastChild(true);
         },
         set: lastElementChild.set,
     });
@@ -128,18 +143,12 @@ export function extendElement(Element) {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return (
-                    /** @type {import('./utils.js').GetterDescriptor} */ (previousElementSibling).get.call(this) ?? null
+                    /** @type {import('./utils.js').GetterDescriptor} */ (previousElementSibling).get.call(
+                        normalizeNode(this)
+                    ) ?? null
                 );
             }
-
-            let sibling = parentRealm.getPreviousSibling(this);
-            while (sibling) {
-                if (sibling.nodeType === 1) {
-                    return sibling;
-                }
-                sibling = parentRealm.getPreviousSibling(sibling);
-            }
-            return null;
+            return parentRealm.getPreviousSibling(this, true);
         },
         set: previousElementSibling.set,
     });
@@ -151,17 +160,13 @@ export function extendElement(Element) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (nextElementSibling).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (nextElementSibling).get.call(
+                        normalizeNode(this)
+                    ) ?? null
+                );
             }
-
-            let sibling = parentRealm.getNextSibling(this);
-            while (sibling) {
-                if (sibling.nodeType === 1) {
-                    return sibling;
-                }
-                sibling = parentRealm.getNextSibling(sibling);
-            }
-            return null;
+            return parentRealm.getNextSibling(this, true);
         },
         set: nextElementSibling.set,
     });
@@ -171,13 +176,16 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (after).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (after).value.apply(
+                    normalizeNode(this),
+                    normalizeNodes(nodes)
+                );
             }
             const sibling = parentRealm.getNextSibling(this);
             if (sibling) {
-                return parentRealm.insertBefore(sibling, ...nodes);
+                return parentRealm.insertBefore(normalizeNode(sibling), ...nodes);
             }
             return parentRealm.append(...nodes);
         },
@@ -189,9 +197,12 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (before).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (before).value.apply(
+                    normalizeNode(this),
+                    normalizeNodes(nodes)
+                );
             }
             return parentRealm.insertBefore(this, ...nodes);
         },
@@ -203,9 +214,12 @@ export function extendElement(Element) {
          * @param {(ChildNode | string)[]} nodes
          */
         value(...nodes) {
-            const parentRealm = getParentRealm(this, true);
+            const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(
+                    normalizeNode(this),
+                    normalizeNodes(nodes)
+                );
             }
             return parentRealm.replaceWith(this, ...nodes);
         },
@@ -218,13 +232,13 @@ export function extendElement(Element) {
          * @param {ChildNode} node
          */
         value(position, node) {
-            const realm = getRealm(this, true);
-            const parentRealm = getParentRealm(this, true);
+            const realm = getRealm(this);
+            const parentRealm = getParentRealm(this);
             switch (position) {
                 case 'beforebegin':
                     if (!parentRealm) {
                         return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
-                            this,
+                            normalizeNode(this),
                             position,
                             node
                         );
@@ -233,7 +247,7 @@ export function extendElement(Element) {
                 case 'afterend':
                     if (!parentRealm) {
                         return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
-                            this,
+                            normalizeNode(this),
                             position,
                             node
                         );
@@ -242,7 +256,7 @@ export function extendElement(Element) {
                 case 'afterbegin':
                     if (!realm) {
                         return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
-                            this,
+                            normalizeNode(this),
                             position,
                             node
                         );
@@ -251,13 +265,84 @@ export function extendElement(Element) {
                 case 'beforeend':
                     if (!realm) {
                         return /** @type {import('./utils.js').ValueDescriptor} */ (insertAdjacentElement).value.call(
-                            this,
+                            normalizeNode(this),
                             position,
                             node
                         );
                     }
                     return realm.append(node);
             }
+        },
+    });
+
+    defineProperty(ElementPrototype, 'shadowRoot', {
+        /**
+         * @this {Element}
+         */
+        get() {
+            const realm = getRealm(this);
+            if (!realm) {
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (shadowRoot).get.call(normalizeNode(this)) ??
+                    null
+                );
+            }
+
+            return realm.root;
+        },
+        set: shadowRoot.set,
+    });
+
+    defineProperty(ElementPrototype, 'assignedSlot', {
+        /**
+         * @this {Element}
+         */
+        get() {
+            const parentRealm = getParentRealm(this);
+            if (!parentRealm) {
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (assignedSlot).get.call(normalizeNode(this)) ??
+                    null
+                );
+            }
+
+            return parentRealm.resolveNode(this).parentNode ?? null;
+        },
+        set: assignedSlot.set,
+    });
+
+    defineProperty(ElementPrototype, 'innerHTML', {
+        /**
+         * @this {Element}
+         */
+        get() {
+            const realm = getRealm(this);
+            if (!realm) {
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (innerHTML).get.call(normalizeNode(this)) ??
+                    null
+                );
+            }
+            return realm.getHTML() ?? null;
+        },
+        /**
+         * @this {Element}
+         * @param {string} value
+         */
+        set(value) {
+            const setter = /** @type {import('./utils.js').SetterDescriptor} */ (innerHTML).set.bind(
+                normalizeNode(this)
+            );
+            const realm = getRealm(this);
+            if (realm) {
+                for (const child of this.childNodes) {
+                    this.removeChild(child);
+                }
+                setter(value);
+                realm.initialize();
+                return;
+            }
+            setter(value);
         },
     });
 }

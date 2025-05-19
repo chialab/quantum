@@ -3,6 +3,10 @@
  */
 
 /**
+ * @typedef {Omit<PropertyDescriptor, 'set'> & Required<Pick<PropertyDescriptor, 'set'>>} SetterDescriptor
+ */
+
+/**
  * @typedef {Omit<PropertyDescriptor, 'value'> & Required<Pick<PropertyDescriptor, 'value'>>} ValueDescriptor
  */
 

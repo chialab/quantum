@@ -3,13 +3,18 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    plugins: [svelte(), svelteTesting()],
+    plugins: [
+        svelte(),
+        svelteTesting({
+            resolveBrowser: false,
+        }),
+    ],
     test: {
         browser: {
             provider: 'webdriverio',
-            name: 'chrome',
             enabled: true,
             headless: true,
+            instances: [{ browser: 'chrome' }],
         },
         coverage: {
             provider: 'istanbul',

@@ -19,7 +19,7 @@ Thanks to the programmatic access to the realm children, it is possibile to wrap
 render(
     realm.root,
     html`<ul>
-        ${realm.childNodes.map((child) => html` <li>${child}</li> `)}
+        ${element.childNodes.map((child) => html` <li>${child}</li> `)}
     </ul>`
 );
 ```

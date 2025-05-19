@@ -52,7 +52,7 @@ realm.observe(() => {
     render(
         realm.root,
         html`<ul>
-            ${realm.childNodes}
+            ${root.childNodes}
         </ul>`
     );
 });
@@ -86,7 +86,7 @@ render(
             <div class="card-avatar"> ${realm.childNodesBySlot('avatar')} </div>
             ${realm.childNodesBySlot('heading')}
         </div>
-        ${realm.childNodes}
+        ${realm.childNodesBySlot()}
     </div>`
 );
 ```
@@ -115,10 +115,6 @@ The original root node.
 
 The root node proxy for internal rendering.
 
-#### `realm.childNodes`
-
-The child nodes of the realm.
-
 #### `realm.open`
 
 Whether the realm is open or not.
@@ -143,10 +139,6 @@ type MutationRecord = {
 #### `realm.unobserve(callback)`
 
 Stop observing the realm for mutations.
-
-#### `realm.requestUpdate(callback)`
-
-Request an internal update of the realm. The realm get opened and the callback is invoked. Once the callback is completed, the realm get closed again. It is useful to perform an internal realm rendering.
 
 #### `realm.getPreviousSibling(node)`
 
@@ -183,26 +175,3 @@ Insert node at given position in the realm.
 #### `realm.childNodesBySlot(name?: string)`
 
 Get the child nodes of the realm filtered by slot name. If no name is provided, it will provide children with undeclared slot.
-
-## Global methods
-
-The library provide some global methods to manage all realms at once. They are useful to perform global operations like accessibility checks or other tasks that need to access the full DOM tree.
-
-#### `dangerouslyEnterRealms(callback)`
-
-Open all realms and invoke the callback. Once the callback is completed, all realms get closed again.
-
-```ts
-import { dangerouslyEnterRealms } from '@chialab/quantum';
-import { run } from 'axe-core';
-
-const results = await dangerouslyEnterRealms(() => run(document));
-```
-
-#### `dangerouslyOpenRealms`
-
-Open all realms.
-
-#### `dangerouslyCloseRealms`
-
-Close all realms.
