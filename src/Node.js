@@ -31,7 +31,9 @@ export function extendNode(Node) {
         value(node) {
             const realm = getRealm(this, true);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (appendChild).value.call(this, node);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    appendChild
+                ).value.call(this, node);
             }
             return realm.append(node);
         },
@@ -45,7 +47,9 @@ export function extendNode(Node) {
         value(node) {
             const realm = getRealm(this, true);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (removeChild).value.call(this, node);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    removeChild
+                ).value.call(this, node);
             }
             return realm.remove(node);
         },
@@ -60,7 +64,9 @@ export function extendNode(Node) {
         value(node, child) {
             const realm = getRealm(this, true);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (replaceChild).value.call(this, node, child);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    replaceChild
+                ).value.call(this, node, child);
             }
             return realm.replaceWith(child, node);
         },
@@ -75,7 +81,9 @@ export function extendNode(Node) {
         value(node, child) {
             const realm = getRealm(this, true);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (insertBefore).value.call(this, node, child);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    insertBefore
+                ).value.call(this, node, child);
             }
             realm.insertBefore(child, node);
             return node;
@@ -89,7 +97,9 @@ export function extendNode(Node) {
         value() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (hasChildNodes).value.call(this);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    hasChildNodes
+                ).value.call(this);
             }
             return !!realm.childNodes.length;
         },
@@ -102,7 +112,9 @@ export function extendNode(Node) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (childNodes).get.call(this);
+                return /** @type {import('./utils.js').GetterDescriptor} */ (
+                    childNodes
+                ).get.call(this);
             }
             return createNodeList(realm.childNodes);
         },
@@ -116,7 +128,11 @@ export function extendNode(Node) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (firstChild).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        firstChild
+                    ).get.call(this) ?? null
+                );
             }
             return realm.childNodes[0] ?? null;
         },
@@ -130,7 +146,11 @@ export function extendNode(Node) {
         get() {
             const realm = getRealm(this);
             if (!realm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (lastChild).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        lastChild
+                    ).get.call(this) ?? null
+                );
             }
             return realm.childNodes[realm.childNodes.length - 1] ?? null;
         },
@@ -144,7 +164,11 @@ export function extendNode(Node) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (parentNode).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        parentNode
+                    ).get.call(this) ?? null
+                );
             }
             return parentRealm.node;
         },
@@ -158,7 +182,11 @@ export function extendNode(Node) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (parentElement).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        parentElement
+                    ).get.call(this) ?? null
+                );
             }
             return parentRealm.node;
         },
@@ -172,7 +200,11 @@ export function extendNode(Node) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (previousSibling).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        previousSibling
+                    ).get.call(this) ?? null
+                );
             }
             return parentRealm.getPreviousSibling(this) ?? null;
         },
@@ -186,7 +218,11 @@ export function extendNode(Node) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (nextSibling).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        nextSibling
+                    ).get.call(this) ?? null
+                );
             }
             return parentRealm.getNextSibling(this) ?? null;
         },

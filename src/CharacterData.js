@@ -7,8 +7,14 @@ import { defineProperty, getOwnPropertyDescriptors } from './utils.js';
  */
 export function extendCharacterData(CharacterData) {
     const CharacterDataPrototype = CharacterData.prototype;
-    const { remove, previousElementSibling, nextElementSibling, after, before, replaceWith } =
-        getOwnPropertyDescriptors(CharacterDataPrototype);
+    const {
+        remove,
+        previousElementSibling,
+        nextElementSibling,
+        after,
+        before,
+        replaceWith,
+    } = getOwnPropertyDescriptors(CharacterDataPrototype);
 
     defineProperty(CharacterDataPrototype, 'remove', {
         /**
@@ -17,7 +23,9 @@ export function extendCharacterData(CharacterData) {
         value() {
             const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (remove).value.call(this);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    remove
+                ).value.call(this);
             }
             return parentRealm.remove(this);
         },
@@ -31,7 +39,9 @@ export function extendCharacterData(CharacterData) {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
                 return (
-                    /** @type {import('./utils.js').GetterDescriptor} */ (previousElementSibling).get.call(this) ?? null
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        previousElementSibling
+                    ).get.call(this) ?? null
                 );
             }
 
@@ -54,7 +64,11 @@ export function extendCharacterData(CharacterData) {
         get() {
             const parentRealm = getParentRealm(this);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').GetterDescriptor} */ (nextElementSibling).get.call(this) ?? null;
+                return (
+                    /** @type {import('./utils.js').GetterDescriptor} */ (
+                        nextElementSibling
+                    ).get.call(this) ?? null
+                );
             }
 
             let sibling = parentRealm.getNextSibling(this);
@@ -76,7 +90,9 @@ export function extendCharacterData(CharacterData) {
         value(...nodes) {
             const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (after).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    after
+                ).value.apply(this, nodes);
             }
             const sibling = parentRealm.getNextSibling(this);
             if (sibling) {
@@ -94,7 +110,9 @@ export function extendCharacterData(CharacterData) {
         value(...nodes) {
             const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (before).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    before
+                ).value.apply(this, nodes);
             }
             return parentRealm.insertBefore(this, ...nodes);
         },
@@ -108,7 +126,9 @@ export function extendCharacterData(CharacterData) {
         value(...nodes) {
             const parentRealm = getParentRealm(this, true);
             if (!parentRealm) {
-                return /** @type {import('./utils.js').ValueDescriptor} */ (replaceWith).value.apply(this, nodes);
+                return /** @type {import('./utils.js').ValueDescriptor} */ (
+                    replaceWith
+                ).value.apply(this, nodes);
             }
             return parentRealm.replaceWith(this, ...nodes);
         },

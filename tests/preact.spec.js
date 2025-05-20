@@ -34,7 +34,8 @@ describe('Preact', () => {
     });
 
     test('should update text content with multiple text nodes', () => {
-        const Template = (text) => h('custom-element', null, [text, ' ', 'children']);
+        const Template = (text) =>
+            h('custom-element', null, [text, ' ', 'children']);
         const container = document.createElement('div');
 
         render(Template('Text'), container);

@@ -55,8 +55,11 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
      * @param {NodeFilter} [filter] Filter function.
      */
     const filterNode = (node, whatToShow, filter) => {
-        const mask = NodeFilterMask[/** @type {keyof typeof NodeFilterMask} */ (node.nodeType)];
-        if (mask && (whatToShow & mask) == 0) {
+        const mask =
+            NodeFilterMask[
+                /** @type {keyof typeof NodeFilterMask} */ (node.nodeType)
+            ];
+        if (mask && (whatToShow & mask) === 0) {
             return NodeFilter.FILTER_SKIP;
         }
         if (typeof filter === 'function') {
@@ -77,8 +80,16 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
      * @param {NodeFilter} [filter] Filter function.
      * @returns {Node | null}
      */
-    const traverseChildren = (root, currentNode, forward, whatToShow, filter) => {
-        let node = /** @type {Node} */ (forward === false ? currentNode.firstChild : currentNode.lastChild);
+    const traverseChildren = (
+        root,
+        currentNode,
+        forward,
+        whatToShow,
+        filter
+    ) => {
+        let node = /** @type {Node} */ (
+            forward === false ? currentNode.firstChild : currentNode.lastChild
+        );
         if (node === null) {
             return null;
         }
@@ -99,14 +110,20 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
             }
 
             for (;;) {
-                const sibling = forward ? node.previousSibling : node.nextSibling;
+                const sibling = forward
+                    ? node.previousSibling
+                    : node.nextSibling;
                 if (sibling !== null) {
                     node = sibling;
                     continue main;
                 }
 
                 const parent = node.parentNode;
-                if (parent === null || parent === root || parent === currentNode) {
+                if (
+                    parent === null ||
+                    parent === root ||
+                    parent === currentNode
+                ) {
                     return null;
                 }
 
@@ -124,7 +141,13 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
      * @param {NodeFilter} [filter] Filter function.
      * @returns {Node | null}
      */
-    const traverseSiblings = (root, currentNode, forward, whatToShow, filter) => {
+    const traverseSiblings = (
+        root,
+        currentNode,
+        forward,
+        whatToShow,
+        filter
+    ) => {
         let node = currentNode;
         if (node === root) {
             return null;
@@ -151,7 +174,10 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
                 return null;
             }
 
-            if (filterNode(node, whatToShow, filter) === NodeFilter.FILTER_ACCEPT) {
+            if (
+                filterNode(node, whatToShow, filter) ===
+                NodeFilter.FILTER_ACCEPT
+            ) {
                 return null;
             }
         }
@@ -163,8 +189,13 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
             while (node !== null && node !== this.root) {
                 node = node.parentNode;
 
-                if (node !== null && filterNode(node, this.whatToShow, this.filter) === NodeFilter.FILTER_ACCEPT) {
-                    return (this._currentNode = node);
+                if (
+                    node !== null &&
+                    filterNode(node, this.whatToShow, this.filter) ===
+                        NodeFilter.FILTER_ACCEPT
+                ) {
+                    this._currentNode = node;
+                    return this._currentNode;
                 }
             }
             return null;
@@ -173,49 +204,53 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
 
     defineProperty(TreeWalkerPrototype, 'firstChild', {
         value() {
-            return (this._currentNode = traverseChildren(
+            this._currentNode = traverseChildren(
                 this.root,
                 this._currentNode || this.root,
                 false,
                 this.whatToShow,
                 this.filter
-            ));
+            );
+            return this._currentNode;
         },
     });
 
     defineProperty(TreeWalkerPrototype, 'lastChild', {
         value() {
-            return (this._currentNode = traverseChildren(
+            this._currentNode = traverseChildren(
                 this.root,
                 this._currentNode || this.root,
                 true,
                 this.whatToShow,
                 this.filter
-            ));
+            );
+            return this._currentNode;
         },
     });
 
     defineProperty(TreeWalkerPrototype, 'previousSibling', {
         value() {
-            return (this._currentNode = traverseSiblings(
+            this._currentNode = traverseSiblings(
                 this.root,
                 this._currentNode || this.root,
                 false,
                 this.whatToShow,
                 this.filter
-            ));
+            );
+            return this._currentNode;
         },
     });
 
     defineProperty(TreeWalkerPrototype, 'nextSibling', {
         value() {
-            return (this._currentNode = traverseSiblings(
+            this._currentNode = traverseSiblings(
                 this.root,
                 this._currentNode || this.root,
                 true,
                 this.whatToShow,
                 this.filter
-            ));
+            );
+            return this._currentNode;
         },
     });
 
@@ -230,13 +265,17 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
                     node = sibling;
 
                     let result = filterNode(node, this.whatToShow, this.filter);
-                    while (result !== NodeFilter.FILTER_REJECT && node.hasChildNodes()) {
+                    while (
+                        result !== NodeFilter.FILTER_REJECT &&
+                        node.hasChildNodes()
+                    ) {
                         node = node.lastChild;
                         result = filterNode(node, this.whatToShow, this.filter);
                     }
 
                     if (result === NodeFilter.FILTER_ACCEPT) {
-                        return (this._currentNode = node);
+                        this._currentNode = node;
+                        return this._currentNode;
                     }
                     sibling = node.previousSibling;
                 }
@@ -246,8 +285,12 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
                 }
 
                 node = node.parentNode;
-                if (filterNode(node, this.whatToShow, this.filter) === NodeFilter.FILTER_ACCEPT) {
-                    return (this._currentNode = node);
+                if (
+                    filterNode(node, this.whatToShow, this.filter) ===
+                    NodeFilter.FILTER_ACCEPT
+                ) {
+                    this._currentNode = node;
+                    return this._currentNode;
                 }
             }
 
@@ -264,7 +307,10 @@ export function extendTreeWalker(TreeWalker, NodeFilter) {
             let result = NodeFilter.FILTER_ACCEPT;
 
             for (;;) {
-                while (result !== NodeFilter.FILTER_REJECT && node.hasChildNodes()) {
+                while (
+                    result !== NodeFilter.FILTER_REJECT &&
+                    node.hasChildNodes()
+                ) {
                     node = node.firstChild;
                     result = filterNode(node, this.whatToShow, this.filter);
                     if (result === NodeFilter.FILTER_ACCEPT) {

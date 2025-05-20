@@ -80,7 +80,9 @@ export function getRealm(node, editMode = false) {
     const realm = node[REALM_SYMBOL] ?? null;
     if (opened) {
         if (editMode && realm) {
-            throw new Error('Cannot get realm in edit mode when all realms are open');
+            throw new Error(
+                'Cannot get realm in edit mode when all realms are open'
+            );
         }
         return null;
     }
@@ -99,7 +101,9 @@ export function getRealm(node, editMode = false) {
 export function getParentRealm(node, editMode = false) {
     if (opened) {
         if (editMode) {
-            throw new Error('Cannot get realm in edit mode when all realms are open');
+            throw new Error(
+                'Cannot get realm in edit mode when all realms are open'
+            );
         }
         return null;
     }
@@ -350,7 +354,9 @@ export class Realm {
      * @param {MutationRecord[]} mutations The list of mutations that triggered the update.
      */
     _notifyUpdate(mutations = []) {
-        this.requestUpdate(() => this._callbacks.forEach((callback) => callback(mutations)));
+        this.requestUpdate(() =>
+            this._callbacks.forEach((callback) => callback(mutations))
+        );
     }
 
     /**
@@ -621,7 +627,8 @@ export class Realm {
                 return !name;
             }
 
-            const slotName = /** @type {HTMLElement} */ (child).getAttribute('slot') || null;
+            const slotName =
+                /** @type {HTMLElement} */ (child).getAttribute('slot') || null;
             return slotName === name;
         });
     }

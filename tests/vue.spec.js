@@ -56,7 +56,11 @@ describe('Vue', () => {
                 };
             },
             render() {
-                return Vue.h('custom-element', {}, [this.text, ' ', 'children']);
+                return Vue.h('custom-element', {}, [
+                    this.text,
+                    ' ',
+                    'children',
+                ]);
             },
             methods: {
                 updateText(value) {

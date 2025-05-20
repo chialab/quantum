@@ -1,10 +1,10 @@
 <script>
-    import './CustomElement.js';
+import './CustomElement.js';
 
-    /**
-     * @type {boolean}
-     */
-    export let title;
+/**
+ * @type {boolean}
+ */
+export let title;
 </script>
 
 <custom-element>

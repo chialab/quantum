@@ -2,14 +2,21 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+const config = defineConfig({
     plugins: [svelte(), svelteTesting()],
+    resolve: {
+        conditions: ['browser'],
+    },
     test: {
         browser: {
-            provider: 'webdriverio',
-            name: 'chrome',
             enabled: true,
             headless: true,
+            provider: 'webdriverio',
+            instances: [
+                {
+                    browser: 'chrome',
+                },
+            ],
         },
         coverage: {
             provider: 'istanbul',
@@ -17,3 +24,5 @@ export default defineConfig({
         },
     },
 });
+
+export default config;

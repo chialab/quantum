@@ -5,7 +5,8 @@ import './components/CustomElement.js';
 
 describe('React', () => {
     test('should update text content', async () => {
-        const Template = (text) => React.createElement('custom-element', null, [text]);
+        const Template = (text) =>
+            React.createElement('custom-element', null, [text]);
         const container = document.createElement('div');
         const root = ReactDOM.createRoot(container);
         root.render(Template('Text'));
@@ -37,7 +38,12 @@ describe('React', () => {
     });
 
     test('should update text content with multiple text nodes', async () => {
-        const Template = (text) => React.createElement('custom-element', null, [text, ' ', 'children']);
+        const Template = (text) =>
+            React.createElement('custom-element', null, [
+                text,
+                ' ',
+                'children',
+            ]);
         const container = document.createElement('div');
         const root = ReactDOM.createRoot(container);
         root.render(Template('Text'));
@@ -73,8 +79,16 @@ describe('React', () => {
             React.createElement('custom-element', null, [
                 'Text ',
                 title
-                    ? React.createElement('h1', { slot: 'children', key: 1 }, 'Title')
-                    : React.createElement('h2', { slot: 'children', key: 2 }, 'Subtitle'),
+                    ? React.createElement(
+                          'h1',
+                          { slot: 'children', key: 1 },
+                          'Title'
+                      )
+                    : React.createElement(
+                          'h2',
+                          { slot: 'children', key: 2 },
+                          'Subtitle'
+                      ),
                 '\n',
             ]);
         const container = document.createElement('div');

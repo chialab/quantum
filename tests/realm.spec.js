@@ -255,7 +255,9 @@ describe('realm', () => {
         expect(child3.previousElementSibling).toBe(child2);
         expect(child2.nextElementSibling).toBe(child3);
         expect(child3.nextElementSibling).toBe(null);
-        expect(container.innerHTML).toBe('<div></div><div></div>string<div></div>test');
+        expect(container.innerHTML).toBe(
+            '<div></div><div></div>string<div></div>test'
+        );
     });
 
     test('Element.prototype.children|childElementCount|firstElementChild|lastElementChild|previousElementSibling|nextElementSibling should work in realm', () => {
@@ -292,7 +294,9 @@ describe('realm', () => {
         expect(container.lastChild.previousSibling).toBe(child);
         child.after('test2');
         expect(container.childNodes.length).toBe(3);
-        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.lastChild.previousSibling).toBe(
+            container.firstChild.nextSibling
+        );
     });
 
     test('Element.prototype.after should work in realm', () => {
@@ -305,7 +309,9 @@ describe('realm', () => {
         expect(container.lastChild.previousSibling).toBe(child);
         child.after('test2');
         expect(container.childNodes.length).toBe(3);
-        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.lastChild.previousSibling).toBe(
+            container.firstChild.nextSibling
+        );
         expect(container.innerHTML).toBe('');
     });
 
@@ -318,7 +324,9 @@ describe('realm', () => {
         expect(container.firstChild.nextSibling).toBe(child);
         child.before('test2');
         expect(container.childNodes.length).toBe(3);
-        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.lastChild.previousSibling).toBe(
+            container.firstChild.nextSibling
+        );
     });
 
     test('Element.prototype.before should work in realm', () => {
@@ -331,7 +339,9 @@ describe('realm', () => {
         expect(container.firstChild.nextSibling).toBe(child);
         child.after('test2');
         expect(container.childNodes.length).toBe(3);
-        expect(container.lastChild.previousSibling).toBe(container.firstChild.nextSibling);
+        expect(container.lastChild.previousSibling).toBe(
+            container.firstChild.nextSibling
+        );
         expect(container.innerHTML).toBe('');
     });
 

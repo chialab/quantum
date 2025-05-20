@@ -4,7 +4,8 @@ import './components/CustomElement.js';
 
 describe('Lit', () => {
     test('should update text content', () => {
-        const Template = (text) => html`<custom-element>${text}</custom-element>`;
+        const Template = (text) =>
+            html`<custom-element>${text}</custom-element>`;
         const container = document.createElement('div');
         render(Template('Text'), container);
         const element = container.children[0];
@@ -30,7 +31,8 @@ describe('Lit', () => {
     });
 
     test('should update text content with multiple text nodes', () => {
-        const Template = (text) => html`<custom-element>${text} ${'children'}</custom-element>`;
+        const Template = (text) =>
+            html`<custom-element>${text} ${'children'}</custom-element>`;
         const container = document.createElement('div');
         render(Template('Text'), container);
         const element = container.children[0];
@@ -68,7 +70,11 @@ describe('Lit', () => {
         element.connectedCallback();
 
         expect(element.childNodes.length).toBe(4);
-        expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$').replace(/\n\s+/g, '')).toBe(
+        expect(
+            container.innerHTML
+                .replace(/\?lit\$\d+\$/g, '?lit$')
+                .replace(/\n\s+/g, '')
+        ).toBe(
             '<!----><custom-element><span>Text <!--?lit$--><!--isµ0--></span><div><h1 slot="children">Title</h1><!--isµ1--></div></custom-element>'
         );
 
@@ -76,7 +82,11 @@ describe('Lit', () => {
         expect(element.childNodes.length).toBe(4);
         expect(element.childNodes[0]).toBe(textNode);
         expect(element.childNodes[3]).toBe(lastNode);
-        expect(container.innerHTML.replace(/\?lit\$\d+\$/g, '?lit$').replace(/\n\s+/g, '')).toBe(
+        expect(
+            container.innerHTML
+                .replace(/\?lit\$\d+\$/g, '?lit$')
+                .replace(/\n\s+/g, '')
+        ).toBe(
             '<!----><custom-element><span>Text <!--?lit$--><!--isµ0--></span><div><h2 slot="children">Subtitle</h2><!--isµ1--></div></custom-element>'
         );
     });

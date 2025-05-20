@@ -4,7 +4,8 @@ import './components/CustomElement.js';
 
 describe('uhtml', () => {
     test('should update text content', () => {
-        const Template = (text) => html`<custom-element>${text}</custom-element>`;
+        const Template = (text) =>
+            html`<custom-element>${text}</custom-element>`;
         const container = document.createElement('div');
 
         render(container, Template('Text'));
@@ -34,7 +35,8 @@ describe('uhtml', () => {
     });
 
     test('should update text content with multiple text nodes', () => {
-        const Template = (text) => html`<custom-element>${text} children</custom-element>`;
+        const Template = (text) =>
+            html`<custom-element>${text} children</custom-element>`;
         const container = document.createElement('div');
 
         render(container, Template('Text'));
