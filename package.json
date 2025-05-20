@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chialab/quantum"
+    "url": "git+https://github.com/chialab/quantum.git"
   },
   "bugs": {
     "url": "https://github.com/chialab/quantum/issues"
@@ -50,7 +50,7 @@
     "@vitest/coverage-istanbul": "^3.0.0",
     "lit": "^2.7.5",
     "preact": "^10.15.1",
-    "publint": "^0.3.0",
+    "publint": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "svelte": "^5.0.0",
