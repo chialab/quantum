@@ -130,7 +130,7 @@ export class Realm {
      * @type {ChildNode[]}
      * @protected
      */
-    _childNodes;
+    _childNodes = [];
 
     /**
      * The fragment used to temporary store nodes.
@@ -287,9 +287,10 @@ export class Realm {
     }
 
     /**
-     * Connect the realm to the node.
+     * Initialize the realm.
+     * @protected
      */
-    connect() {
+    _initialize() {
         this._childNodes = [].slice.call(this.node.childNodes);
         this._childNodes.forEach((node) => {
             this.adopt(node);
@@ -298,6 +299,13 @@ export class Realm {
         if (typeof customElements !== 'undefined') {
             customElements.upgrade(this._fragment);
         }
+    }
+
+    /**
+     * Connect the realm to the node.
+     */
+    connect() {
+        this._initialize();
 
         const realm = this;
         const proto = Object.getPrototypeOf(this.node);
@@ -495,6 +503,36 @@ export class Realm {
                         ).call(this, position, node);
                 }
             },
+            /**
+             * @this {Element}
+             */
+            get textContent() {
+                return Reflect.get(proto, 'textContent', this);
+            },
+            /**
+             * @this {Element}
+             * @param {string} value
+             */
+            set textContent(value) {
+                realm.remove(...realm.childNodes);
+                Reflect.set(proto, 'textContent', value, this);
+                realm._initialize();
+            },
+            /**
+             * @this {Element}
+             */
+            get innerHTML() {
+                return Reflect.get(proto, 'innerHTML', this);
+            },
+            /**
+             * @this {Element}
+             * @param {string} value
+             */
+            set innerHTML(value) {
+                realm.remove(...realm.childNodes);
+                Reflect.set(proto, 'innerHTML', value, this);
+                realm._initialize();
+            },
             [this._hostSymbol]: true,
         };
         Object.setPrototypeOf(hostProto, proto);
@@ -520,8 +558,8 @@ export class Realm {
         this._childNodes.forEach((node) => {
             this._release(node);
         });
-        this._restorePrototype(this.node, this._hostSymbol);
         this._childNodes = [];
+        this._restorePrototype(this.node, this._hostSymbol);
         this.node.appendChild(this._fragment);
     }
 
@@ -595,9 +633,7 @@ export class Realm {
         if (!this._connected) {
             return;
         }
-        this.requestUpdate(() =>
-            this._callbacks.forEach((callback) => callback(mutations))
-        );
+        this._callbacks.forEach((callback) => callback(mutations));
     }
 
     /**

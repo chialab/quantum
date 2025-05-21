@@ -390,6 +390,56 @@ describe('realm', () => {
         expect(child.parentNode).toBe(null);
     });
 
+    test('Element.prototype.textContent should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.textContent = 'test';
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.textContent).toBe('test');
+        expect(child.parentNode).toBe(container);
+        expect(container.innerHTML).toBe('<div>test</div>');
+    });
+
+    test('Element.prototype.textContent should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        const realm = attachRealm(container);
+        realm.connect();
+
+        container.append(child);
+        child.textContent = 'test';
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.textContent).toBe('test');
+        expect(child.parentNode).toBe(container);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Element.prototype.innerHTML should work as usual', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        container.append(child);
+        child.innerHTML = '<span>test</span>';
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.innerHTML).toBe('<span>test</span>');
+        expect(child.parentNode).toBe(container);
+        expect(container.innerHTML).toBe('<div><span>test</span></div>');
+    });
+
+    test('Element.prototype.innerHTML should work in realm', () => {
+        const container = document.createElement('div');
+        const child = document.createElement('div');
+        const realm = attachRealm(container);
+        realm.connect();
+
+        container.append(child);
+        child.innerHTML = '<span>test</span>';
+        expect(container.childNodes.length).toBe(1);
+        expect(container.firstChild.innerHTML).toBe('<span>test</span>');
+        expect(child.parentNode).toBe(container);
+        expect(container.innerHTML).toBe('');
+    });
+
     test('Slotted elements are selectable', () => {
         const container = document.createElement('div');
         const child = document.createTextNode('test');

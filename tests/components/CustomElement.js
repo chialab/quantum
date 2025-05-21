@@ -18,12 +18,14 @@ export class CustomElement extends HTMLElement {
     }
 
     forceUpdate() {
-        render(
-            this.realm.root,
-            html`
+        this.realm.requestUpdate(() => {
+            render(
+                this.realm.root,
+                html`
                 <span>${this.realm.childNodesBySlot(null)}</span><div>${this.realm.childNodesBySlot('children')}</div>
             `
-        );
+            );
+        });
     }
 }
 
