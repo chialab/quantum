@@ -27,7 +27,9 @@ describe('realm', () => {
     test('Node.prototype.appendChild should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.appendChild(child);
         expect(container.childNodes.length).toBe(1);
         expect(container.childNodes[0]).toBe(child);
@@ -47,7 +49,9 @@ describe('realm', () => {
     test('Node.prototype.removeChild should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.appendChild(child);
         container.removeChild(child);
         expect(container.childNodes.length).toBe(0);
@@ -72,7 +76,9 @@ describe('realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
         const child2 = document.createElement('span');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.appendChild(child);
         container.replaceChild(child2, child);
         expect(container.childNodes.length).toBe(1);
@@ -101,7 +107,9 @@ describe('realm', () => {
         const child = document.createElement('div');
         const child2 = document.createElement('span');
         const child3 = document.createElement('article');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.appendChild(child);
         container.insertBefore(child2, child);
         container.appendChild(child3);
@@ -147,7 +155,9 @@ describe('realm', () => {
         const child = document.createElement('div');
         const child2 = document.createElement('div');
         const child3 = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         expect(container.hasChildNodes()).toBe(false);
         expect(container.firstChild).toBe(null);
         expect(container.lastChild).toBe(null);
@@ -180,7 +190,9 @@ describe('realm', () => {
     test('Element.prototype.append should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child, 'Hello');
         expect(container.childNodes.length).toBe(2);
         expect(container.childNodes[0]).toBe(child);
@@ -204,7 +216,9 @@ describe('realm', () => {
     test('Element.prototype.prepend should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child);
         container.prepend('Hello');
         expect(container.childNodes.length).toBe(2);
@@ -226,7 +240,9 @@ describe('realm', () => {
     test('Element.prototype.remove should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child);
         child.remove();
         expect(container.childNodes.length).toBe(0);
@@ -265,7 +281,9 @@ describe('realm', () => {
         const child = document.createElement('div');
         const child2 = document.createElement('div');
         const child3 = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         expect(container.childElementCount).toBe(0);
         expect(container.firstElementChild).toBe(null);
         expect(container.lastElementChild).toBe(null);
@@ -302,7 +320,9 @@ describe('realm', () => {
     test('Element.prototype.after should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child);
         child.after('test');
         expect(container.childNodes.length).toBe(2);
@@ -332,7 +352,9 @@ describe('realm', () => {
     test('Element.prototype.before should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child);
         child.before('test');
         expect(container.childNodes.length).toBe(2);
@@ -358,7 +380,9 @@ describe('realm', () => {
     test('Element.prototype.replaceWith should work in realm', () => {
         const container = document.createElement('div');
         const child = document.createElement('div');
-        attachRealm(container);
+        const realm = attachRealm(container);
+        realm.connect();
+
         container.append(child);
         child.replaceWith('test');
         expect(container.childNodes.length).toBe(1);
@@ -370,7 +394,10 @@ describe('realm', () => {
         const container = document.createElement('div');
         const child = document.createTextNode('test');
         container.append(child);
-        attachRealm(container);
+
+        const realm = attachRealm(container);
+        realm.connect();
+
         const range = document.createRange();
         expect(() => range.selectNode(child)).not.toThrow();
     });

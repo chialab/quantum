@@ -10,7 +10,11 @@ export class CustomElement extends HTMLElement {
     }
 
     connectedCallback() {
-        this.realm.requestUpdate(() => this.forceUpdate());
+        this.realm.connect();
+    }
+
+    disconnectedCallback() {
+        this.realm.disconnect();
     }
 
     forceUpdate() {
