@@ -10,16 +10,22 @@ export class CustomElement extends HTMLElement {
     }
 
     connectedCallback() {
-        this.realm.requestUpdate(() => this.forceUpdate());
+        this.realm.connect();
+    }
+
+    disconnectedCallback() {
+        this.realm.disconnect();
     }
 
     forceUpdate() {
-        render(
-            this.realm.root,
-            html`
+        this.realm.requestUpdate(() => {
+            render(
+                this.realm.root,
+                html`
                 <span>${this.realm.childNodesBySlot(null)}</span><div>${this.realm.childNodesBySlot('children')}</div>
             `
-        );
+            );
+        });
     }
 }
 

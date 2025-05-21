@@ -2,6 +2,8 @@
  * @typedef {{ addedNodes: ChildNode[]; removedNodes: ChildNode[]; previousSibling: ChildNode | null; nextSibling: ChildNode | null }} MutationRecord
  */
 
+import { createNodeList } from './NodeList.js';
+
 /**
  * @typedef {(mutations: MutationRecord[]) => void} RealmChangeCallback
  */
@@ -67,51 +69,17 @@ export function attachRealm(node) {
         throw new Error('Node already has a realm');
     }
 
-    return (node[REALM_SYMBOL] = new Realm(node));
+    node[REALM_SYMBOL] = new Realm(node);
+    return node[REALM_SYMBOL];
 }
 
 /**
  * Get the realm instance for a node.
  * @param {Node & { [REALM_SYMBOL]?: Realm }} node The root node.
- * @param {boolean} editMode Whether to return a realm in edit mode.
  * @returns {Realm|null} The realm instance or null.
  */
-export function getRealm(node, editMode = false) {
-    const realm = node[REALM_SYMBOL] ?? null;
-    if (opened) {
-        if (editMode && realm) {
-            throw new Error(
-                'Cannot get realm in edit mode when all realms are open'
-            );
-        }
-        return null;
-    }
-    if (realm && !realm.open) {
-        return realm;
-    }
-    return null;
-}
-
-/**
- * Get the parent realm instance for a node.
- * @param {Node & { [REALM_PARENT_SYMBOL]?: Realm }} node The child node.
- * @param {boolean} editMode Whether to return a realm in edit mode.
- * @returns The parent realm instance or null.
- */
-export function getParentRealm(node, editMode = false) {
-    if (opened) {
-        if (editMode) {
-            throw new Error(
-                'Cannot get realm in edit mode when all realms are open'
-            );
-        }
-        return null;
-    }
-    const realm = node[REALM_PARENT_SYMBOL] ?? null;
-    if (realm && !realm.open) {
-        return realm;
-    }
-    return null;
+function getRealm(node) {
+    return node[REALM_SYMBOL] ?? null;
 }
 
 /**
@@ -162,7 +130,7 @@ export class Realm {
      * @type {ChildNode[]}
      * @protected
      */
-    _childNodes;
+    _childNodes = [];
 
     /**
      * The fragment used to temporary store nodes.
@@ -184,6 +152,23 @@ export class Realm {
      * @protected
      */
     _open = false;
+
+    /**
+     * Whether the realm is connected.
+     * @type {boolean}
+     * @protected
+     */
+    _connected = false;
+
+    /**
+     * The symbol used to identify the host prototype.
+     */
+    _hostSymbol = Symbol();
+
+    /**
+     * The symbol used to identify the child prototype.
+     */
+    _childSymbol = Symbol();
 
     /**
      * Setup the realm.
@@ -219,8 +204,6 @@ export class Realm {
                 return true;
             },
         });
-
-        this.initialize();
     }
 
     /**
@@ -259,7 +242,7 @@ export class Realm {
         let parentNode = this._node.parentNode;
         while (parentNode) {
             const realm = getRealm(parentNode);
-            if (realm) {
+            if (realm && !realm.open && !opened) {
                 return realm;
             }
             parentNode = parentNode.parentNode;
@@ -269,23 +252,315 @@ export class Realm {
     }
 
     /**
-     * Initialize the realm.
+     * Find the prototype of the realm in the prototype chain.
+     * @param {Node} node The node to find the prototype of.
+     * @param {symbol} symbol The symbol to use to find the prototype.
+     * @returns {Node | null} The realm prototype target.
      */
-    initialize() {
-        this._childNodes = [].slice.call(this.node.childNodes);
-
-        this._childNodes.forEach((node) => {
-            this._fragment.appendChild(node);
-            if (!getOwnerRealm(node)) {
-                setParentRealm(node, this);
+    _findPrototypeTarget(node, symbol) {
+        let target = node;
+        let proto = Object.getPrototypeOf(target);
+        while (proto) {
+            if (Object.getOwnPropertySymbols(proto).includes(symbol)) {
+                return target;
             }
+            target = proto;
+            proto = Object.getPrototypeOf(proto);
+        }
+
+        return null;
+    }
+
+    /**
+     * Restore the prototype of a node.
+     * @param {Node} node The node to restore the prototype of.
+     * @param {symbol} symbol The symbol to use to find the prototype.
+     */
+    _restorePrototype(node, symbol) {
+        const target = this._findPrototypeTarget(node, symbol);
+        if (target) {
+            Object.setPrototypeOf(
+                target,
+                Object.getPrototypeOf(Object.getPrototypeOf(target))
+            );
+        }
+    }
+
+    /**
+     * Initialize the realm.
+     * @protected
+     */
+    _initialize() {
+        this._childNodes = [].slice.call(this.node.childNodes);
+        this._childNodes.forEach((node) => {
+            this.adopt(node);
         });
 
         if (typeof customElements !== 'undefined') {
             customElements.upgrade(this._fragment);
         }
+    }
 
+    /**
+     * Connect the realm to the node.
+     */
+    connect() {
+        this._initialize();
+
+        const realm = this;
+        const proto = Object.getPrototypeOf(this.node);
+        const hostProto = {
+            // From Node.prototype
+            /**
+             * @this {Node}
+             * @param {ChildNode} node
+             */
+            appendChild(node) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'appendChild', this).call(
+                        this,
+                        node
+                    );
+                }
+                return realm.append(node);
+            },
+            /**
+             * @this {Node}
+             * @param {ChildNode} node
+             */
+            removeChild(node) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'removeChild', this).call(
+                        this,
+                        node
+                    );
+                }
+                return realm.remove(node);
+            },
+            /**
+             * @this {Node}
+             * @param {ChildNode} node
+             * @param {ChildNode} child
+             */
+            replaceChild(node, child) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'replaceChild', this).call(
+                        this,
+                        node,
+                        child
+                    );
+                }
+                return realm.replaceWith(child, node);
+            },
+            /**
+             * @this {Node}
+             * @param {ChildNode} node
+             * @param {ChildNode | null} refNode
+             */
+            insertBefore(node, refNode) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'insertBefore', this).call(
+                        this,
+                        node,
+                        refNode
+                    );
+                }
+                return realm.insertBefore(refNode, node);
+            },
+            /**
+             * @this {Node}
+             */
+            hasChildNodes() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'hasChildNodes', this).call(this);
+                }
+                return !!realm.childNodes.length;
+            },
+            /**
+             * @this {Node}
+             */
+            get childNodes() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'childNodes', this);
+                }
+                return createNodeList(realm.childNodes);
+            },
+            /**
+             * @this {Node}
+             */
+            get firstChild() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'firstChild', this);
+                }
+                return realm.childNodes[0] ?? null;
+            },
+            /**
+             * @this {Node}
+             */
+            get lastChild() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'lastChild', this);
+                }
+                return realm.childNodes[realm.childNodes.length - 1] ?? null;
+            },
+            // From Element.prototype
+            /**
+             * @this {Element}
+             * @param {(ChildNode | string)[]} nodes
+             */
+            append(...nodes) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'append', this).call(
+                        this,
+                        ...nodes
+                    );
+                }
+                return realm.append(...nodes);
+            },
+            /**
+             * @this {Element}
+             * @param {(ChildNode | string)[]} nodes
+             */
+            prepend(...nodes) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'prepend', this).call(
+                        this,
+                        ...nodes
+                    );
+                }
+                return realm.prepend(...nodes);
+            },
+            /**
+             * @this {Element}
+             */
+            get children() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'children', this);
+                }
+                return realm.childNodes.filter((node) => node.nodeType === 1);
+            },
+            /**
+             * @this {Element}
+             */
+            get childElementCount() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'childElementCount', this);
+                }
+                return realm.childNodes.filter((node) => node.nodeType === 1)
+                    .length;
+            },
+            /**
+             * @this {Element}
+             */
+            get firstElementChild() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'firstElementChild', this);
+                }
+                return (
+                    realm.childNodes.find((node) => node.nodeType === 1) ?? null
+                );
+            },
+            /**
+             * @this {Element}
+             */
+            get lastElementChild() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'lastElementChild', this);
+                }
+
+                let io = realm.childNodes.length;
+                while (io-- > 0) {
+                    const node = realm.childNodes[io];
+                    if (node.nodeType === 1) {
+                        return node;
+                    }
+                }
+                return null;
+            },
+            /**
+             * @this {Element}
+             * @param {'beforebegin'|'afterbegin'|'beforeend'|'afterend'} position
+             * @param {ChildNode} node
+             */
+            insertAdjacentElement(position, node) {
+                if (realm.open || opened) {
+                    return Reflect.get(
+                        proto,
+                        'insertAdjacentElement',
+                        this
+                    ).call(this, position, node);
+                }
+                switch (position) {
+                    case 'afterbegin':
+                        return realm.prepend(node);
+                    case 'beforeend':
+                        return realm.append(node);
+                    default:
+                        return Reflect.get(
+                            proto,
+                            'insertAdjacentElement',
+                            this
+                        ).call(this, position, node);
+                }
+            },
+            /**
+             * @this {Element}
+             */
+            get textContent() {
+                return Reflect.get(proto, 'textContent', this);
+            },
+            /**
+             * @this {Element}
+             * @param {string} value
+             */
+            set textContent(value) {
+                realm.remove(...realm.childNodes);
+                Reflect.set(proto, 'textContent', value, this);
+                realm._initialize();
+            },
+            /**
+             * @this {Element}
+             */
+            get innerHTML() {
+                return Reflect.get(proto, 'innerHTML', this);
+            },
+            /**
+             * @this {Element}
+             * @param {string} value
+             */
+            set innerHTML(value) {
+                realm.remove(...realm.childNodes);
+                Reflect.set(proto, 'innerHTML', value, this);
+                realm._initialize();
+            },
+            [this._hostSymbol]: true,
+        };
+        Object.setPrototypeOf(hostProto, proto);
+        Object.setPrototypeOf(this.node, hostProto);
+
+        this._connected = true;
         this._notifyUpdate();
+    }
+
+    /**
+     * Disconnect the realm from the node.
+     */
+    disconnect() {
+        this._connected = false;
+
+        this.requestUpdate(() => {
+            let childNode = this.node.lastChild;
+            while (childNode) {
+                this.node.removeChild(childNode);
+                childNode = this.node.lastChild;
+            }
+        });
+        this._childNodes.forEach((node) => {
+            this._release(node);
+        });
+        this._childNodes = [];
+        this._restorePrototype(this.node, this._hostSymbol);
+        this.node.appendChild(this._fragment);
     }
 
     /**
@@ -351,48 +626,249 @@ export class Realm {
 
     /**
      * Notifiy a realm update
+     * @protected
      * @param {MutationRecord[]} mutations The list of mutations that triggered the update.
      */
     _notifyUpdate(mutations = []) {
-        this.requestUpdate(() =>
-            this._callbacks.forEach((callback) => callback(mutations))
-        );
+        if (!this._connected) {
+            return;
+        }
+        this._callbacks.forEach((callback) => callback(mutations));
     }
 
     /**
      * Get the previous sibling of a node in the realm.
      * @param {ChildNode | null} node The node to get the previous sibling of.
+     * @param {boolean} [filterElement=true] Whether to filter elements.
      * @returns The previous sibling of the node.
      */
-    getPreviousSibling(node) {
+    getPreviousSibling(node, filterElement = false) {
         if (!node) {
             return null;
         }
-        const io = this._childNodes.indexOf(node);
-        if (io === -1) {
-            return null;
+        let io = this._childNodes.indexOf(node);
+        while (--io >= 0) {
+            const previousSibling = this._childNodes[io] ?? null;
+            if (!filterElement || previousSibling.nodeType === 1) {
+                return previousSibling;
+            }
         }
-        return this._childNodes[io - 1] ?? null;
+        return null;
     }
 
     /**
      * Get the next sibling of a node in the realm.
      * @param {ChildNode | null} node The node to get the next sibling of.
+     * @param {boolean} [filterElement=true] Whether to filter elements.
      * @returns The next sibling of the node.
      */
-    getNextSibling(node) {
+    getNextSibling(node, filterElement = false) {
         if (!node) {
             return null;
         }
-        const io = this._childNodes.indexOf(node);
-        if (io === -1) {
-            return null;
+        let io = this._childNodes.indexOf(node);
+        while (++io < this._childNodes.length) {
+            const nextSibling = this._childNodes[io] ?? null;
+            if (!filterElement || nextSibling.nodeType === 1) {
+                return nextSibling;
+            }
         }
-        return this._childNodes[io + 1] ?? null;
+        return null;
+    }
+
+    /**
+     * Release a node from the realm.
+     * @protected
+     * @param {Node} node The node to release.
+     */
+    _release(node) {
+        setParentRealm(node, null);
+        this._restorePrototype(node, this._childSymbol);
+    }
+
+    /**
+     * Adopt a node into the realm.
+     * @protected
+     * @param {Node} node The node to adopt.
+     */
+    _adopt(node) {
+        setParentRealm(node, this);
+        this._fragment.appendChild(node);
+
+        const realm = this;
+        const proto = Object.getPrototypeOf(node);
+        const childProto = {
+            // From Node.prototype
+            /**
+             * @this {Node}
+             */
+            get parentNode() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'parentNode', this);
+                }
+                return realm.node;
+            },
+            /**
+             * @this {Node}
+             */
+            get parentElement() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'parentElement', this);
+                }
+                return realm.node;
+            },
+            /**
+             * @this {Node}
+             */
+            get previousSibling() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'previousSibling', this);
+                }
+                return realm.getPreviousSibling(
+                    /** @type {ChildNode} */ (this)
+                );
+            },
+            /**
+             * @this {Node}
+             */
+            get nextSibling() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'nextSibling', this);
+                }
+                return realm.getNextSibling(/** @type {ChildNode} */ (this));
+            },
+            /**
+             * @this {Node}
+             */
+            get previousElementSibling() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'previousElementSibling', this);
+                }
+                return realm.getPreviousSibling(
+                    /** @type {ChildNode} */ (this),
+                    true
+                );
+            },
+            /**
+             * @this {Node}
+             */
+            get nextElementSibling() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'nextElementSibling', this);
+                }
+                return realm.getNextSibling(
+                    /** @type {ChildNode} */ (this),
+                    true
+                );
+            },
+            /**
+             * @this {ChildNode}
+             */
+            remove() {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'remove', this).call(this);
+                }
+                return realm.remove(this);
+            },
+            /**
+             * @this {ChildNode}
+             * @param {(ChildNode | string)[]} nodes
+             */
+            after(...nodes) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'after', this).call(
+                        this,
+                        ...nodes
+                    );
+                }
+                const sibling = realm.getNextSibling(this);
+                if (sibling) {
+                    return realm.insertBefore(sibling, ...nodes);
+                }
+                return realm.append(...nodes);
+            },
+            /**
+             * @this {ChildNode}
+             * @param {(ChildNode | string)[]} nodes
+             */
+            before(...nodes) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'before', this).call(
+                        this,
+                        ...nodes
+                    );
+                }
+                return realm.insertBefore(this, ...nodes);
+            },
+            /**
+             * @this {ChildNode}
+             * @param {(ChildNode | string)[]} nodes
+             */
+            replaceWith(...nodes) {
+                if (realm.open || opened) {
+                    return Reflect.get(proto, 'replaceWith', this).call(
+                        this,
+                        ...nodes
+                    );
+                }
+                return realm.replaceWith(this, ...nodes);
+            },
+            [this._childSymbol]: true,
+        };
+        if (node.nodeType === 1 /* Node.ELEMENT_NODE */) {
+            Object.assign(childProto, {
+                // From Element.prototype
+                /**
+                 * @this {Element}
+                 * @param {'beforebegin'|'afterbegin'|'beforeend'|'afterend'} position
+                 * @param {ChildNode} node
+                 */
+                insertAdjacentElement(position, node) {
+                    if (realm.open || opened) {
+                        return Reflect.get(
+                            proto,
+                            'insertAdjacentElement',
+                            this
+                        ).call(this, position, node);
+                    }
+                    switch (position) {
+                        case 'beforebegin':
+                            return realm.insertBefore(this, node);
+                        case 'afterend':
+                            return realm.insertBefore(this.nextSibling, node);
+                        default:
+                            return Reflect.get(
+                                proto,
+                                'insertAdjacentElement',
+                                this
+                            ).call(this, position, node);
+                    }
+                },
+            });
+        }
+        Object.setPrototypeOf(childProto, proto);
+        Object.setPrototypeOf(node, childProto);
+    }
+
+    /**
+     * Adopt a node into the realm.
+     * @param {Node} node The node to adopt.
+     */
+    adopt(node) {
+        const ownerRealm = getOwnerRealm(node);
+        if (ownerRealm) {
+            if (!ownerRealm.contains(this)) {
+                ownerRealm.remove(/** @type {ChildNode} */ (node));
+                this._adopt(node);
+            }
+        } else {
+            this._adopt(node);
+        }
     }
 
     /**
      * Normalize nodes list.
+     * @protected
      * @param {(Node | string)[]} nodes The nodes to normalize.
      * @param {ChildNode[]} [acc] The accumulator.
      * @returns The normalized nodes.
@@ -400,24 +876,13 @@ export class Realm {
     _importNodes(nodes, acc = []) {
         return nodes.reduce((acc, node) => {
             if (typeof node === 'string') {
-                node = this._document.createTextNode(node);
-                setParentRealm(node, this);
-                this._fragment.appendChild(node);
-                acc.push(/** @type {ChildNode} */ (node));
+                const textNode = this._document.createTextNode(node);
+                this.adopt(textNode);
+                acc.push(textNode);
             } else if (node.nodeType === 11 /* Node.DOCUMENT_FRAGMENT_NODE */) {
                 this._importNodes(Array.from(node.childNodes), acc);
             } else {
-                const ownerRealm = getOwnerRealm(node);
-                if (ownerRealm) {
-                    if (!ownerRealm.contains(this)) {
-                        ownerRealm.remove(/** @type {ChildNode} */ (node));
-                        setParentRealm(node, this);
-                        this._fragment.appendChild(node);
-                    }
-                } else {
-                    setParentRealm(node, this);
-                    this._fragment.appendChild(node);
-                }
+                this.adopt(node);
                 acc.push(/** @type {ChildNode} */ (node));
             }
             return acc;
@@ -473,7 +938,7 @@ export class Realm {
             const io = this._childNodes.indexOf(child);
             if (io !== -1) {
                 if (getOwnerRealm(child) === this) {
-                    setParentRealm(child, null);
+                    this._release(child);
                 }
                 this._childNodes.splice(io, 1);
                 if (this._fragment.contains(child)) {
